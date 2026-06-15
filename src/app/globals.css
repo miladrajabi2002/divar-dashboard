@@ -49,38 +49,38 @@
 }
 
 :root {
-  --background: oklch(0.985 0.003 50);
-  --foreground: oklch(0.16 0.01 40);
+  --background: oklch(0.975 0.003 40);
+  --foreground: oklch(0.2 0.012 40);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.01 40);
+  --card-foreground: oklch(0.2 0.012 40);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.01 40);
-  --primary: oklch(0.62 0.21 27);
+  --popover-foreground: oklch(0.2 0.012 40);
+  --primary: oklch(0.585 0.225 27);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.965 0.004 50);
-  --secondary-foreground: oklch(0.24 0.01 40);
-  --muted: oklch(0.965 0.004 50);
-  --muted-foreground: oklch(0.53 0.01 40);
-  --accent: oklch(0.95 0.03 27);
-  --accent-foreground: oklch(0.45 0.16 27);
-  --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.92 0.004 50);
-  --input: oklch(0.92 0.004 50);
-  --ring: oklch(0.62 0.21 27);
-  --chart-1: oklch(0.62 0.21 27);
-  --chart-2: oklch(0.65 0.15 200);
-  --chart-3: oklch(0.72 0.15 75);
-  --chart-4: oklch(0.6 0.16 280);
-  --chart-5: oklch(0.62 0.16 150);
-  --radius: 0.875rem;
-  --sidebar: oklch(0.17 0.012 40);
-  --sidebar-foreground: oklch(0.92 0.005 50);
-  --sidebar-primary: oklch(0.62 0.21 27);
+  --secondary: oklch(0.97 0.004 40);
+  --secondary-foreground: oklch(0.28 0.012 40);
+  --muted: oklch(0.965 0.004 40);
+  --muted-foreground: oklch(0.55 0.012 40);
+  --accent: oklch(0.955 0.035 27);
+  --accent-foreground: oklch(0.45 0.18 27);
+  --destructive: oklch(0.585 0.225 27);
+  --border: oklch(0.925 0.005 40);
+  --input: oklch(0.925 0.005 40);
+  --ring: oklch(0.585 0.225 27);
+  --chart-1: oklch(0.585 0.225 27);
+  --chart-2: oklch(0.72 0.16 60);
+  --chart-3: oklch(0.62 0.13 230);
+  --chart-4: oklch(0.6 0.15 160);
+  --chart-5: oklch(0.58 0.16 300);
+  --radius: 0.85rem;
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.3 0.012 40);
+  --sidebar-primary: oklch(0.585 0.225 27);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.24 0.012 40);
-  --sidebar-accent-foreground: oklch(0.95 0.005 50);
-  --sidebar-border: oklch(0.27 0.012 40);
-  --sidebar-ring: oklch(0.62 0.21 27);
+  --sidebar-accent: oklch(0.965 0.004 40);
+  --sidebar-accent-foreground: oklch(0.2 0.012 40);
+  --sidebar-border: oklch(0.93 0.005 40);
+  --sidebar-ring: oklch(0.585 0.225 27);
 }
 
 .dark {
@@ -123,8 +123,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: "Vazirmatn", system-ui, sans-serif;
+    font-family: "Sahel", "Vazirmatn", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
   }
   html {
     direction: rtl;
@@ -156,20 +157,33 @@
 }
 
 @layer components {
-  /* Soft elevated card shadow used across the dashboard */
+  /* Material-style elevation used across the dashboard */
   .card-elevated {
     box-shadow:
-      0 1px 2px oklch(0 0 0 / 0.04),
-      0 4px 16px oklch(0 0 0 / 0.06);
+      0 1px 2px oklch(0.2 0.02 40 / 0.05),
+      0 6px 20px oklch(0.2 0.02 40 / 0.06);
   }
+  .card-elevated-lg {
+    box-shadow:
+      0 2px 4px oklch(0.2 0.02 40 / 0.05),
+      0 12px 32px oklch(0.2 0.02 40 / 0.08);
+  }
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/Sahel-VF.woff2")
+    format("woff2 supports variations"),
+    url("https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/Sahel-VF.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Vazirmatn";
   src: url("https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn[wght].woff2")
-    format("woff2 supports variations"),
-    url("https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn[wght].woff2")
-    format("woff2");
+    format("woff2 supports variations");
   font-weight: 100 900;
   font-display: swap;
 }

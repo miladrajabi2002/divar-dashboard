@@ -15,7 +15,7 @@ export function PostCard({ post }: { post: PostRowData }) {
   const labelStyle = LABEL_STYLES[post.labelColor] ?? "bg-muted text-muted-foreground";
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow group">
+    <Card className="overflow-hidden card-elevated border-border/50 hover:card-elevated-lg hover:-translate-y-0.5 transition-all duration-200 group p-0">
       <Link href={`/posts/${post.manageToken}`}>
         <div className="aspect-video bg-muted relative overflow-hidden">
           {post.imageUrl ? (
