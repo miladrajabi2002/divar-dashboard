@@ -68,6 +68,14 @@ export const aiGenerations = sqliteTable("ai_generations", {
   ),
 });
 
+export const appSettings = sqliteTable("app_settings", {
+  key: text("key").primaryKey(),
+  value: text("value"),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(unixepoch())`
+  ),
+});
+
 export type DivarSession = typeof divarSessions.$inferSelect;
 export type NewDivarSession = typeof divarSessions.$inferInsert;
 export type PostCache = typeof postsCache.$inferSelect;
@@ -76,3 +84,5 @@ export type PostStat = typeof postStats.$inferSelect;
 export type NewPostStat = typeof postStats.$inferInsert;
 export type AiGeneration = typeof aiGenerations.$inferSelect;
 export type NewAiGeneration = typeof aiGenerations.$inferInsert;
+export type AppSetting = typeof appSettings.$inferSelect;
+export type NewAppSetting = typeof appSettings.$inferInsert;

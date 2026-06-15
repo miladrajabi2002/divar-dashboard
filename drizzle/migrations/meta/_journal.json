@@ -8,6 +8,13 @@
       "when": 1781549460670,
       "tag": "0000_misty_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1781559071166,
+      "tag": "0001_sparkling_sasquatch",
+      "breakpoints": true
     }
   ]
 }

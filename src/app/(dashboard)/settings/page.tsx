@@ -1,22 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "@/store/session";
 
+// Curated OpenRouter models. Users can also type any model id manually.
+const TEXT_MODELS = [
+  "anthropic/claude-sonnet-4-6",
+  "anthropic/claude-opus-4-8",
+  "openai/gpt-4o",
+  "openai/gpt-4o-mini",
+  "google/gemini-2.5-pro",
+  "google/gemini-2.5-flash",
+  "meta-llama/llama-3.3-70b-instruct",
+  "deepseek/deepseek-chat",
+];
+
+const IMAGE_MODELS = [
+  "google/gemini-2.5-flash-image-preview",
+  "google/gemini-2.0-flash-exp:free",
+  "openai/gpt-4o",
+];
+
 export default function SettingsPage() {
   const { phone, expiresAt, isLoggedIn, openLoginModal, setLoggedOut } = useSession();
-  const [apiKey, setApiKey] = useState("");
-  const [saved, setSaved] = useState(false);
 
-  function handleSaveApiKey() {
-    // In a real setup this would hit a server action
-    localStorage.setItem("OPENROUTER_API_KEY", apiKey);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const [apiKey, setApiKey] = useState("");
+  const [apiKeyMasked, setApiKeyMasked] = useState("");
+  const [hasApiKey, setHasApiKey] = useState(false);
+  const [textModel, setTextModel] = useState("");
+  const [imageModel, setImageModel] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [now] = useState(() => Date.now());
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d) => {
+        setHasApiKey(d.hasApiKey);
+        setApiKeyMasked(d.apiKeyMasked ?? "");
+        setTextModel(d.textModel ?? "");
+        setImageModel(d.imageModel ?? "");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey: apiKey.trim() || undefined,
+          textModel,
+          imageModel,
+        }),
+      });
+      const d = await res.json();
+      setHasApiKey(d.hasApiKey);
+      setApiKeyMasked(d.apiKeyMasked ?? "");
+      setApiKey("");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -39,7 +93,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-sm">انقضاء توکن</span>
                   <Badge
-                    variant={expiresAt.getTime() < Date.now() + 30 * 60 * 1000 ? "destructive" : "secondary"}
+                    variant={expiresAt.getTime() < now + 30 * 60 * 1000 ? "destructive" : "secondary"}
                   >
                     {expiresAt.toLocaleTimeString("fa-IR")}
                   </Badge>
@@ -63,34 +117,66 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* OpenRouter API Key */}
+      {/* AI Configuration */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">کلید API هوش مصنوعی</CardTitle>
+          <CardTitle className="text-base">پیکربندی هوش مصنوعی (OpenRouter)</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-muted-foreground text-sm">
-            کلید API از{" "}
-            <span className="text-primary font-mono">openrouter.ai</span>{" "}
-            برای استفاده از ابزارهای هوش مصنوعی
-          </p>
-          <div className="flex gap-2">
+        <CardContent className="space-y-5">
+          {/* API Key */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">کلید API</label>
             <Input
               type="password"
-              placeholder="sk-or-v1-..."
+              placeholder={hasApiKey ? `ذخیره شده: ${apiKeyMasked}` : "sk-or-v1-..."}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               className="font-mono text-sm ltr"
               dir="ltr"
+              disabled={loading}
             />
-            <Button onClick={handleSaveApiKey} disabled={!apiKey}>
-              {saved ? "✓" : "ذخیره"}
-            </Button>
+            <p className="text-muted-foreground text-xs">
+              کلید را از{" "}
+              <a
+                href="https://openrouter.ai/keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-mono"
+              >
+                openrouter.ai/keys
+              </a>{" "}
+              بگیرید. برای حفظ کلید فعلی این فیلد را خالی بگذارید.
+            </p>
           </div>
-          <p className="text-muted-foreground text-xs">
-            کلید در متغیر محیطی <code className="bg-muted px-1 rounded">OPENROUTER_API_KEY</code> در فایل{" "}
-            <code className="bg-muted px-1 rounded">.env.local</code> ذخیره می‌شود
-          </p>
+
+          {/* Text Model */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">مدل متن (عنوان، توضیحات، تحلیل)</label>
+            <ModelSelect
+              value={textModel}
+              onChange={setTextModel}
+              options={TEXT_MODELS}
+              disabled={loading}
+            />
+          </div>
+
+          {/* Image Model */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">مدل عکس (بنر آگهی)</label>
+            <ModelSelect
+              value={imageModel}
+              onChange={setImageModel}
+              options={IMAGE_MODELS}
+              disabled={loading}
+            />
+            <p className="text-muted-foreground text-xs">
+              فقط مدل‌هایی که خروجی تصویر دارند (image generation) را انتخاب کنید.
+            </p>
+          </div>
+
+          <Button onClick={handleSave} disabled={saving || loading} className="w-full">
+            {saving ? "در حال ذخیره..." : saved ? "ذخیره شد ✓" : "ذخیره تنظیمات"}
+          </Button>
         </CardContent>
       </Card>
 
@@ -102,18 +188,59 @@ export default function SettingsPage() {
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>داشبورد مدیریت آگهی‌های دیوار با هوش مصنوعی</p>
           <p>این پروژه از API‌های داخلی دیوار استفاده می‌کند و برای مدیریت شخصی آگهی‌ها طراحی شده است.</p>
-          <div className="pt-2">
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              مشاهده در GitHub
-            </a>
-          </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function ModelSelect({
+  value,
+  onChange,
+  options,
+  disabled,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  disabled?: boolean;
+}) {
+  const isCustom = value !== "" && !options.includes(value);
+  const [custom, setCustom] = useState(isCustom);
+
+  return (
+    <div className="space-y-2">
+      <select
+        className="w-full h-9 px-3 text-sm rounded-lg border border-input bg-background ltr disabled:opacity-50"
+        dir="ltr"
+        value={custom ? "__custom__" : value}
+        disabled={disabled}
+        onChange={(e) => {
+          if (e.target.value === "__custom__") {
+            setCustom(true);
+          } else {
+            setCustom(false);
+            onChange(e.target.value);
+          }
+        }}
+      >
+        {options.map((m) => (
+          <option key={m} value={m}>
+            {m}
+          </option>
+        ))}
+        <option value="__custom__">سفارشی (وارد کردن دستی)…</option>
+      </select>
+      {custom && (
+        <Input
+          placeholder="provider/model-id"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="font-mono text-sm ltr"
+          dir="ltr"
+          disabled={disabled}
+        />
+      )}
     </div>
   );
 }

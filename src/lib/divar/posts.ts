@@ -1,5 +1,4 @@
 import { divarGet, divarPost } from "./client";
-import { faToNumber } from "@/lib/utils/persian";
 import type { DivarSession } from "@/lib/db/schema";
 import type {
   PostRowData,

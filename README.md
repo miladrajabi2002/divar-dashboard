@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# داشبورد دیوار (Divar Dashboard)
 
-## Getting Started
+داشبورد مدیریت آگهی‌های [دیوار](https://divar.ir) با کمک هوش مصنوعی. ورود با OTP داخل داشبورد، مشاهده و مدیریت آگهی‌ها، آمار، تولید عنوان/متن/تحلیل با AI، و **ساخت بنر آگهی با مدل تصویر** — همه از طریق [OpenRouter](https://openrouter.ai).
 
-First, run the development server:
+> ⚙️ این پروژه برای **اجرای روی سرور شخصی (self-host)** طراحی شده، نه Vercel. راهنمای کامل نصب: [docs/INSTALLATION.md](docs/INSTALLATION.md).
+
+## امکانات
+
+- 🔐 **ورود با OTP دیوار** کاملاً داخل داشبورد (دریافت کد + تأیید) با مدیریت انقضای توکن
+- 📋 **مدیریت آگهی‌ها**: لیست، جزئیات، حذف، بارگذاری تدریجی
+- 📊 **آمار آگهی**: نمایش، بازدید، تماس، چت، جایگاه
+- 🤖 **دستیار هوش مصنوعی**: تولید عنوان، متن آگهی، و تحلیل آمار
+- 🎨 **بنرساز**: تولید تصویر بنر آگهی در اندازه‌های استاندارد دیوار
+- ⚙️ **پیکربندی از داشبورد**: کلید API و انتخاب **مدل متن** و **مدل عکس** جداگانه از صفحهٔ تنظیمات
+
+## استک فنی
+
+| بخش | فناوری |
+| --- | --- |
+| فریم‌ورک | Next.js 16 (App Router) + React 19 |
+| دیتابیس | SQLite + Drizzle ORM (`better-sqlite3`) |
+| UI | Tailwind CSS 4 + shadcn / Base UI |
+| State | Zustand |
+| نمودار | Recharts |
+| AI | OpenRouter (از طریق OpenAI SDK + REST) |
+
+## شروع سریع
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/miladrajabi2002/divar-dashboard.git
+cd divar-dashboard
+npm install
+cp .env.example .env.local      # ویرایش اختیاری
+npm run db:migrate              # ساخت دیتابیس
+npm run dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+سپس از صفحهٔ **تنظیمات** کلید OpenRouter و مدل‌ها را وارد کنید و با OTP وارد دیوار شوید.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+برای اجرای production روی سرور (build + start یا PM2)، [docs/INSTALLATION.md](docs/INSTALLATION.md) را ببینید.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## پیکربندی هوش مصنوعی
 
-## Learn More
+کلید API و مدل‌ها از دو راه قابل تنظیم‌اند (اولویت با دیتابیس است):
 
-To learn more about Next.js, take a look at the following resources:
+1. **صفحهٔ تنظیمات داشبورد** (پیشنهادی) — در جدول `app_settings` ذخیره می‌شود.
+2. **متغیرهای محیطی** در `.env.local` (به‌عنوان مقدار پیش‌فرض) — `OPENROUTER_API_KEY`, `AI_MODEL`, `AI_IMAGE_MODEL`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> توجه: مدل عکس باید از تولید تصویر (image output) پشتیبانی کند، مثل `google/gemini-2.5-flash-image-preview`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## هشدار
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+این پروژه از API‌های داخلی و غیررسمی دیوار استفاده می‌کند و برای **مدیریت شخصی آگهی‌های خودتان** است. مسئولیت استفاده بر عهدهٔ کاربر است.

@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { aiGenerations } from "@/lib/db/schema";
+import { getSettings } from "@/lib/settings";
 import OpenAI from "openai";
 
-function getClient() {
+function getClient(apiKey: string) {
   return new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
-    apiKey: process.env.OPENROUTER_API_KEY ?? "placeholder",
+    apiKey,
     defaultHeaders: {
       "HTTP-Referer": "https://github.com/divar-dashboard",
       "X-Title": "Divar Dashboard",
     },
   });
 }
-
-const MODEL = process.env.AI_MODEL ?? "anthropic/claude-sonnet-4-6";
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   title: `شما یک متخصص تبلیغات دیوار هستید. عنوان‌های جذاب، کوتاه و مؤثر برای آگهی‌های دیوار بنویسید.
@@ -38,9 +37,11 @@ const SYSTEM_PROMPTS: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
-  if (!process.env.OPENROUTER_API_KEY) {
+  const { apiKey, textModel } = await getSettings();
+
+  if (!apiKey) {
     return NextResponse.json(
-      { error: "OPENROUTER_API_KEY تنظیم نشده" },
+      { error: "کلید OpenRouter تنظیم نشده — از بخش تنظیمات وارد کنید" },
       { status: 503 }
     );
   }
@@ -53,25 +54,33 @@ export async function POST(req: NextRequest) {
 
   const systemPrompt = SYSTEM_PROMPTS[type] ?? SYSTEM_PROMPTS.description;
 
-  const openai = getClient();
-  const completion = await openai.chat.completions.create({
-    model: MODEL,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: prompt },
-    ],
-    max_tokens: 1000,
-  });
+  const openai = getClient(apiKey);
 
-  const output = completion.choices[0]?.message?.content ?? "";
+  let output = "";
+  try {
+    const completion = await openai.chat.completions.create({
+      model: textModel,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: prompt },
+      ],
+      max_tokens: 1000,
+    });
+    output = completion.choices[0]?.message?.content ?? "";
+  } catch (e) {
+    return NextResponse.json(
+      { error: `خطا در فراخوانی مدل: ${String(e).replace("Error: ", "")}` },
+      { status: 502 }
+    );
+  }
 
   await db.insert(aiGenerations).values({
     postToken: postToken ?? null,
     type,
     inputPrompt: prompt,
     output,
-    model: MODEL,
+    model: textModel,
   });
 
-  return NextResponse.json({ output });
+  return NextResponse.json({ output, model: textModel });
 }
