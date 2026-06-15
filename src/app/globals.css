@@ -49,54 +49,73 @@
 }
 
 :root {
-  --background: oklch(0.985 0.003 50);
-  --foreground: oklch(0.16 0.01 40);
+  /* Warm neutral background — off-white with a slight warm tint */
+  --background: oklch(0.975 0.003 40);
+  --foreground: oklch(0.18 0.014 40);
+
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.01 40);
+  --card-foreground: oklch(0.18 0.014 40);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.01 40);
-  --primary: oklch(0.62 0.21 27);
+  --popover-foreground: oklch(0.18 0.014 40);
+
+  /* Primary: rich red-orange (Divar brand) */
+  --primary: oklch(0.565 0.23 27);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.965 0.004 50);
-  --secondary-foreground: oklch(0.24 0.01 40);
-  --muted: oklch(0.965 0.004 50);
-  --muted-foreground: oklch(0.53 0.01 40);
-  --accent: oklch(0.95 0.03 27);
-  --accent-foreground: oklch(0.45 0.16 27);
-  --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.92 0.004 50);
-  --input: oklch(0.92 0.004 50);
-  --ring: oklch(0.62 0.21 27);
-  --chart-1: oklch(0.62 0.21 27);
-  --chart-2: oklch(0.65 0.15 200);
-  --chart-3: oklch(0.72 0.15 75);
-  --chart-4: oklch(0.6 0.16 280);
-  --chart-5: oklch(0.62 0.16 150);
+
+  --secondary: oklch(0.97 0.004 40);
+  --secondary-foreground: oklch(0.28 0.012 40);
+
+  --muted: oklch(0.963 0.005 40);
+  --muted-foreground: oklch(0.52 0.012 40);
+
+  --accent: oklch(0.955 0.035 27);
+  --accent-foreground: oklch(0.45 0.18 27);
+
+  --destructive: oklch(0.565 0.23 27);
+
+  --border: oklch(0.92 0.006 40);
+  --input: oklch(0.92 0.006 40);
+  --ring: oklch(0.565 0.23 27);
+
+  --chart-1: oklch(0.565 0.23 27);
+  --chart-2: oklch(0.72 0.16 60);
+  --chart-3: oklch(0.62 0.13 230);
+  --chart-4: oklch(0.6 0.15 160);
+  --chart-5: oklch(0.58 0.16 300);
+
   --radius: 0.875rem;
-  --sidebar: oklch(0.17 0.012 40);
-  --sidebar-foreground: oklch(0.92 0.005 50);
-  --sidebar-primary: oklch(0.62 0.21 27);
+
+  /* Sidebar — pure white, slightly separated from background */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.25 0.014 40);
+  --sidebar-primary: oklch(0.565 0.23 27);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.24 0.012 40);
-  --sidebar-accent-foreground: oklch(0.95 0.005 50);
-  --sidebar-border: oklch(0.27 0.012 40);
-  --sidebar-ring: oklch(0.62 0.21 27);
+  --sidebar-accent: oklch(0.963 0.005 40);
+  --sidebar-accent-foreground: oklch(0.18 0.014 40);
+  --sidebar-border: oklch(0.925 0.006 40);
+  --sidebar-ring: oklch(0.565 0.23 27);
+
+  /* Material motion tokens */
+  --motion-standard: 250ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-decelerate: 300ms cubic-bezier(0, 0, 0, 1);
+  --motion-accelerate: 200ms cubic-bezier(0.3, 0, 1, 1);
+  --motion-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .dark {
-  --background: oklch(0.13 0.008 40);
+  --background: oklch(0.12 0.008 40);
   --foreground: oklch(0.95 0.004 50);
-  --card: oklch(0.17 0.01 40);
+  --card: oklch(0.16 0.01 40);
   --card-foreground: oklch(0.95 0.004 50);
-  --popover: oklch(0.17 0.01 40);
+  --popover: oklch(0.16 0.01 40);
   --popover-foreground: oklch(0.95 0.004 50);
   --primary: oklch(0.65 0.21 27);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.24 0.01 40);
+  --secondary: oklch(0.23 0.01 40);
   --secondary-foreground: oklch(0.95 0.004 50);
-  --muted: oklch(0.24 0.01 40);
-  --muted-foreground: oklch(0.64 0.008 50);
-  --accent: oklch(0.27 0.04 27);
+  --muted: oklch(0.23 0.01 40);
+  --muted-foreground: oklch(0.62 0.008 50);
+  --accent: oklch(0.26 0.04 27);
   --accent-foreground: oklch(0.85 0.08 27);
   --destructive: oklch(0.65 0.2 27);
   --border: oklch(1 0 0 / 10%);
@@ -111,7 +130,7 @@
   --sidebar-foreground: oklch(0.92 0.005 50);
   --sidebar-primary: oklch(0.65 0.21 27);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.2 0.01 40);
+  --sidebar-accent: oklch(0.19 0.01 40);
   --sidebar-accent-foreground: oklch(0.95 0.005 50);
   --sidebar-border: oklch(1 0 0 / 8%);
   --sidebar-ring: oklch(0.65 0.21 27);
@@ -121,26 +140,47 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
-    font-family: "Vazirmatn", system-ui, sans-serif;
+    font-family: "Sahel", "Vazirmatn", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+    line-height: 1.6;
   }
+
   html {
     direction: rtl;
   }
+
+  /* Smooth transitions on interactive elements */
+  a, button, [role="button"] {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  /* Focus ring — visible and accessible */
+  *:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
   ::selection {
     background: var(--primary);
     color: var(--primary-foreground);
   }
-  /* Subtle, modern scrollbars */
+
+  /* Clean, minimal scrollbars */
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
   }
   *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   *::-webkit-scrollbar-thumb {
     background: var(--border);
@@ -149,6 +189,12 @@
   *::-webkit-scrollbar-thumb:hover {
     background: var(--muted-foreground);
   }
+
+  /* Headings: tighter tracking */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+  }
 }
 
 @utility ltr {
@@ -156,20 +202,74 @@
 }
 
 @layer components {
-  /* Soft elevated card shadow used across the dashboard */
+  /* Material elevation scale */
   .card-elevated {
     box-shadow:
-      0 1px 2px oklch(0 0 0 / 0.04),
-      0 4px 16px oklch(0 0 0 / 0.06);
+      0 1px 2px oklch(0.15 0.02 40 / 0.06),
+      0 4px 16px oklch(0.15 0.02 40 / 0.07);
+    transition: box-shadow var(--motion-standard), transform var(--motion-standard);
   }
+  .card-elevated:hover {
+    box-shadow:
+      0 2px 4px oklch(0.15 0.02 40 / 0.06),
+      0 8px 24px oklch(0.15 0.02 40 / 0.1);
+  }
+
+  .card-elevated-lg {
+    box-shadow:
+      0 2px 4px oklch(0.15 0.02 40 / 0.06),
+      0 12px 32px oklch(0.15 0.02 40 / 0.1);
+  }
+
+  /* Surface tint for interactive cards (Material You "state layer") */
+  .surface-tinted {
+    background: color-mix(in oklch, var(--primary) 5%, var(--card));
+  }
+
+  /* Chip/badge style for status indicators */
+  .status-chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  /* Section label — small caps style used in settings */
+  .section-label {
+    @apply text-xs font-semibold text-muted-foreground uppercase tracking-widest;
+  }
+
+  /* Fade-in for async content */
+  .fade-in {
+    animation: fadeIn 200ms cubic-bezier(0, 0, 0, 1) both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Textarea consistent with Input */
+  .textarea-field {
+    @apply w-full p-3 text-sm rounded-xl border border-input bg-background resize-none;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring/60 focus:border-primary/50;
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+    min-height: 100px;
+    line-height: 1.7;
+  }
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/Sahel-VF.woff2")
+    format("woff2 supports variations"),
+    url("https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/Sahel-VF.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Vazirmatn";
   src: url("https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn[wght].woff2")
-    format("woff2 supports variations"),
-    url("https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn[wght].woff2")
-    format("woff2");
+    format("woff2 supports variations");
   font-weight: 100 900;
   font-display: swap;
 }

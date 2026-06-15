@@ -15,7 +15,7 @@ export const SETTING_KEYS = {
 } as const;
 
 export const DEFAULT_TEXT_MODEL = "anthropic/claude-sonnet-4-6";
-export const DEFAULT_IMAGE_MODEL = "google/gemini-2.5-flash-image-preview";
+export const DEFAULT_IMAGE_MODEL = "openai/dall-e-3";
 
 export type AppSettings = {
   apiKey: string;
