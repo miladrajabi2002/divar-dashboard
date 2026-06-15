@@ -20,7 +20,11 @@ import { useSession } from "@/store/session";
 const NAV_ITEMS = [
   {
     title: "داشبورد",
+<<<<<<< HEAD
     href: "/overview",
+=======
+    href: "/",
+>>>>>>> 65723248fbc8219afcda3a52bb0c2c89885d294e
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -90,8 +94,15 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {NAV_ITEMS.map((item) => {
+<<<<<<< HEAD
                 const isActive = pathname === item.href ||
                   (item.href !== "/overview" && pathname.startsWith(item.href));
+=======
+                const isActive =
+                  item.href === "/"
+                    ? pathname === "/"
+                    : pathname.startsWith(item.href);
+>>>>>>> 65723248fbc8219afcda3a52bb0c2c89885d294e
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
