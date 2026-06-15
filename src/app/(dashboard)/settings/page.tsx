@@ -26,7 +26,7 @@ const IMAGE_MODELS = [
 ];
 
 export default function SettingsPage() {
-  const { phone, expiresAt, isLoggedIn, openLoginModal, setLoggedOut } = useSession();
+  const { phone, expiresAt, isLoggedIn, openLoginModal, logout } = useSession();
 
   const [apiKey, setApiKey] = useState("");
   const [apiKeyMasked, setApiKeyMasked] = useState("");
@@ -103,7 +103,7 @@ export default function SettingsPage() {
                 <Button variant="outline" size="sm" onClick={openLoginModal} className="flex-1">
                   تجدید توکن
                 </Button>
-                <Button variant="destructive" size="sm" onClick={setLoggedOut} className="flex-1">
+                <Button variant="destructive" size="sm" onClick={logout} className="flex-1">
                   خروج
                 </Button>
               </div>

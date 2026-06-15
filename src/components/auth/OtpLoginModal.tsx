@@ -3,11 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { useSession } from "@/store/session";
 
 export function OtpLoginModal() {
-  const { showLoginModal, closeLoginModal, setLoggedIn } = useSession();
+  const { showLoginModal, closeLoginModal, setLoggedIn, hydrate, isLoggedIn } =
+    useSession();
   const [step, setStep] = useState<"phone" | "code">("phone");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
@@ -62,6 +62,11 @@ export function OtpLoginModal() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setLoggedIn(phone, new Date(data.expiresAt));
+      // Re-sync from the server so the whole app reflects the real session.
+      await hydrate();
+      // Reset for next time.
+      setStep("phone");
+      setCode("");
     } catch (e) {
       setError(String(e).replace("Error: ", ""));
     } finally {
@@ -70,75 +75,90 @@ export function OtpLoginModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <Card className="w-full max-w-sm mx-4 p-6 shadow-2xl border-border">
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-md p-4">
+      <div className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
+        {/* gradient header */}
+        <div className="relative bg-gradient-to-br from-primary to-primary/70 px-6 pt-8 pb-12 text-center">
+          {isLoggedIn && (
+            <button
+              onClick={closeLoginModal}
+              className="absolute top-4 left-4 text-white/80 hover:text-white"
+              aria-label="بستن"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+            <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold">ورود به دیوار</h2>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h2 className="text-lg font-bold text-white">ورود به حساب دیوار</h2>
+          <p className="mt-1 text-sm text-white/80">
             {step === "phone"
               ? "شماره موبایل خود را وارد کنید"
-              : `کد ارسال شده به ${phone} را وارد کنید`}
+              : `کد ارسال‌شده به ${phone}`}
           </p>
         </div>
 
-        {step === "phone" ? (
-          <form onSubmit={handleSendOtp} className="space-y-4">
-            <Input
-              type="tel"
-              placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="text-center text-lg tracking-widest ltr"
-              dir="ltr"
-              maxLength={11}
-              autoFocus
-            />
-            {error && <p className="text-destructive text-sm text-center">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading || phone.length < 11}>
-              {loading ? "در حال ارسال..." : "دریافت کد"}
-            </Button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <Input
-              ref={codeRef}
-              type="text"
-              inputMode="numeric"
-              placeholder="کد ۵ رقمی"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              className="text-center text-2xl tracking-[0.5em] ltr"
-              dir="ltr"
-              maxLength={6}
-            />
-            {error && <p className="text-destructive text-sm text-center">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading || code.length < 4}>
-              {loading ? "در حال تأیید..." : "تأیید و ورود"}
-            </Button>
-            <div className="text-center">
-              {countdown > 0 ? (
-                <span className="text-muted-foreground text-sm">
-                  ارسال مجدد کد تا {countdown} ثانیه دیگر
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => { setStep("phone"); setCode(""); setError(""); }}
-                  className="text-primary text-sm hover:underline"
-                >
-                  تغییر شماره / ارسال مجدد
-                </button>
-              )}
-            </div>
-          </form>
-        )}
-      </Card>
+        {/* body card lifted over header */}
+        <div className="-mt-6 rounded-t-3xl bg-card px-6 pb-6 pt-6">
+          {step === "phone" ? (
+            <form onSubmit={handleSendOtp} className="space-y-4">
+              <Input
+                type="tel"
+                placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                className="h-12 text-center text-lg tracking-widest ltr"
+                dir="ltr"
+                maxLength={11}
+                autoFocus
+              />
+              {error && <p className="text-destructive text-sm text-center">{error}</p>}
+              <Button type="submit" className="w-full h-11" disabled={loading || phone.length < 11}>
+                {loading ? "در حال ارسال..." : "دریافت کد تأیید"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <Input
+                ref={codeRef}
+                type="text"
+                inputMode="numeric"
+                placeholder="– – – – –"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                className="h-12 text-center text-2xl tracking-[0.5em] ltr"
+                dir="ltr"
+                maxLength={6}
+              />
+              {error && <p className="text-destructive text-sm text-center">{error}</p>}
+              <Button type="submit" className="w-full h-11" disabled={loading || code.length < 4}>
+                {loading ? "در حال تأیید..." : "تأیید و ورود"}
+              </Button>
+              <div className="text-center">
+                {countdown > 0 ? (
+                  <span className="text-muted-foreground text-sm">
+                    ارسال مجدد کد تا {countdown} ثانیه دیگر
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { setStep("phone"); setCode(""); setError(""); }}
+                    className="text-primary text-sm font-medium hover:underline"
+                  >
+                    تغییر شماره / ارسال مجدد
+                  </button>
+                )}
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

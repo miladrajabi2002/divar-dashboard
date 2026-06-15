@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/store/session";
@@ -9,12 +10,12 @@ import type { PostRowData } from "@/lib/divar/types";
 interface StatsCard {
   title: string;
   value: string;
+  tint: string;
   icon: React.ReactNode;
-  color: string;
 }
 
 export default function DashboardPage() {
-  const { isLoggedIn, openLoginModal } = useSession();
+  const { isLoggedIn, phone, openLoginModal } = useSession();
   const [posts, setPosts] = useState<PostRowData[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +29,7 @@ export default function DashboardPage() {
         else setPosts(d.posts ?? []);
       })
       .finally(() => setLoading(false));
-  }, [isLoggedIn]);
+  }, [isLoggedIn, openLoginModal]);
 
   const activePosts = posts.filter((p) => p.labelColor === "SUCCESS_PRIMARY");
 
@@ -36,44 +37,40 @@ export default function DashboardPage() {
     {
       title: "آگهی‌های فعال",
       value: String(activePosts.length),
-      color: "text-green-600",
+      tint: "bg-emerald-500/10 text-emerald-600",
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
     },
     {
       title: "کل آگهی‌ها",
       value: String(posts.length),
-      color: "text-blue-600",
+      tint: "bg-blue-500/10 text-blue-600",
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       ),
     },
     {
       title: "آگهی با چت",
       value: String(posts.filter((p) => p.hasChat).length),
-      color: "text-purple-600",
+      tint: "bg-violet-500/10 text-violet-600",
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
         </svg>
       ),
     },
     {
-      title: "تصویر دار",
+      title: "تصویردار",
       value: String(posts.filter((p) => p.imageCount > 0).length),
-      color: "text-orange-600",
+      tint: "bg-amber-500/10 text-amber-600",
       icon: (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       ),
     },
@@ -82,44 +79,52 @@ export default function DashboardPage() {
   if (!isLoggedIn) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center gap-4">
-        <div className="w-20 h-20 bg-muted rounded-2xl flex items-center justify-center">
-          <svg className="w-10 h-10 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center">
+          <svg className="w-10 h-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
         <h2 className="text-xl font-bold">برای شروع وارد دیوار شوید</h2>
-        <p className="text-muted-foreground">برای مشاهده و مدیریت آگهی‌هایتان ابتدا وارد شوید</p>
-        <button
-          onClick={openLoginModal}
-          className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
-        >
-          ورود با OTP
+        <p className="text-muted-foreground max-w-xs">برای مشاهده و مدیریت آگهی‌هایتان ابتدا وارد حساب دیوار شوید</p>
+        <button onClick={openLoginModal} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors">
+          ورود با کد یک‌بارمصرف
         </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">خوش آمدید</h1>
-        <p className="text-muted-foreground mt-1">خلاصه وضعیت آگهی‌های شما</p>
+    <div className="space-y-7 max-w-6xl mx-auto">
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-primary to-primary/75 p-7 text-primary-foreground">
+        <div className="absolute -left-8 -top-8 h-40 w-40 rounded-full bg-white/10" />
+        <div className="absolute -left-2 bottom-0 h-24 w-24 rounded-full bg-white/10" />
+        <div className="relative">
+          <p className="text-sm text-primary-foreground/80">خوش آمدید 👋</p>
+          <h1 className="text-2xl font-bold mt-1">داشبورد آگهی‌های شما</h1>
+          {phone && (
+            <p className="text-primary-foreground/80 text-sm mt-2 ltr inline-block" dir="ltr">
+              {phone}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {summaryCards.map((card) => (
-          <Card key={card.title}>
+          <Card key={card.title} className="card-elevated border-border/60">
             <CardContent className="p-5">
               {loading ? (
-                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-12 w-full" />
               ) : (
                 <div className="flex items-center gap-3">
-                  <div className={`${card.color} opacity-80`}>{card.icon}</div>
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${card.tint}`}>
+                    {card.icon}
+                  </div>
                   <div>
-                    <p className="text-2xl font-bold">{card.value}</p>
-                    <p className="text-muted-foreground text-xs mt-0.5">{card.title}</p>
+                    <p className="text-2xl font-bold leading-none">{card.value}</p>
+                    <p className="text-muted-foreground text-xs mt-1.5">{card.title}</p>
                   </div>
                 </div>
               )}
@@ -129,44 +134,50 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Posts */}
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="card-elevated border-border/60">
+        <CardHeader className="flex-row items-center justify-between pb-3">
           <CardTitle className="text-base">آخرین آگهی‌ها</CardTitle>
+          <Link href="/posts" className="text-primary text-sm font-medium hover:underline">
+            مشاهدهٔ همه
+          </Link>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="space-y-3">
-              {[...Array(3)].map((_, i) => (
+              {[...Array(4)].map((_, i) => (
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
           ) : posts.length === 0 ? (
-            <p className="text-muted-foreground text-sm text-center py-8">
-              آگهی‌ای یافت نشد
-            </p>
+            <p className="text-muted-foreground text-sm text-center py-8">آگهی‌ای یافت نشد</p>
           ) : (
-            <div className="divide-y">
-              {posts.slice(0, 5).map((post) => (
-                <div key={post.manageToken} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                  {post.imageUrl && (
-                    <img
-                      src={post.imageUrl}
-                      alt={post.title}
-                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                    />
+            <div className="divide-y divide-border/70">
+              {posts.slice(0, 6).map((post) => (
+                <Link
+                  key={post.manageToken}
+                  href={`/posts/${post.manageToken}`}
+                  className="flex items-center gap-3 py-3 first:pt-0 last:pb-0 -mx-2 px-2 rounded-lg hover:bg-muted/60 transition-colors"
+                >
+                  {post.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={post.imageUrl} alt={post.title} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-muted flex-shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{post.title}</p>
-                    <p className="text-muted-foreground text-xs truncate">{post.priceText} — {post.location}</p>
+                    <p className="text-muted-foreground text-xs truncate mt-0.5">
+                      {post.priceText} {post.location && `— ${post.location}`}
+                    </p>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ${
                     post.labelColor === "SUCCESS_PRIMARY"
-                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                      ? "bg-emerald-500/10 text-emerald-600"
                       : "bg-muted text-muted-foreground"
                   }`}>
                     {post.label}
                   </span>
-                </div>
+                </Link>
               ))}
             </div>
           )}
