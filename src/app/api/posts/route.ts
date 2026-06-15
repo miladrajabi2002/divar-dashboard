@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveSession, isSessionExpired } from "@/lib/divar/auth";
 import { getMyPosts } from "@/lib/divar/posts";
+import { divarErrorResponse } from "@/lib/divar/api-error";
 import type { PostTab } from "@/lib/divar/posts";
 
 export async function GET(req: NextRequest) {
@@ -14,7 +15,10 @@ export async function GET(req: NextRequest) {
   const tab = (searchParams.get("tab") ?? "all") as PostTab;
   const lastIdentifier = searchParams.get("last") ?? "";
 
-  const result = await getMyPosts(session, tab, lastIdentifier);
-
-  return NextResponse.json(result);
+  try {
+    const result = await getMyPosts(session, tab, lastIdentifier);
+    return NextResponse.json(result);
+  } catch (e) {
+    return divarErrorResponse(e);
+  }
 }

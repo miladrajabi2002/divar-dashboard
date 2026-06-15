@@ -23,11 +23,12 @@ export default function DashboardPage() {
     if (!isLoggedIn) return;
     setLoading(true);
     fetch("/api/posts")
-      .then((r) => r.json())
+      .then((r) => r.json().catch(() => ({})))
       .then((d) => {
         if (d.error === "SESSION_EXPIRED") openLoginModal();
         else setPosts(d.posts ?? []);
       })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [isLoggedIn, openLoginModal]);
 

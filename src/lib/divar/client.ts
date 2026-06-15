@@ -3,6 +3,20 @@ import type { DivarSession } from "@/lib/db/schema";
 
 const DIVAR_API = "https://api.divar.ir";
 
+/** Error that preserves the Divar HTTP status and raw response body. */
+export class DivarError extends Error {
+  status: number;
+  detail: string;
+  path: string;
+  constructor(status: number, path: string, detail: string) {
+    super(`Divar API error ${status} for ${path}`);
+    this.name = "DivarError";
+    this.status = status;
+    this.path = path;
+    this.detail = detail;
+  }
+}
+
 export async function divarFetch(
   session: DivarSession,
   path: string,
@@ -19,6 +33,7 @@ export async function divarFetch(
     "Content-Type": "application/json",
     "Accept": "application/json-divar-filled, application/json, text/plain, */*",
     "Cookie": cookieHeader,
+    "Authorization": `Bearer ${session.accessToken}`,
     "Origin": "https://divar.ir",
     "Referer": "https://divar.ir/",
     "User-Agent":
@@ -36,7 +51,8 @@ export async function divarFetch(
 export async function divarGet<T>(session: DivarSession, path: string): Promise<T> {
   const res = await divarFetch(session, path, { method: "GET" });
   if (!res.ok) {
-    throw new Error(`Divar API error ${res.status} for ${path}`);
+    const detail = await res.text().catch(() => "");
+    throw new DivarError(res.status, path, detail);
   }
   return res.json() as Promise<T>;
 }
@@ -51,7 +67,8 @@ export async function divarPost<T>(
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    throw new Error(`Divar API error ${res.status} for POST ${path}`);
+    const detail = await res.text().catch(() => "");
+    throw new DivarError(res.status, path, detail);
   }
   return res.json() as Promise<T>;
 }

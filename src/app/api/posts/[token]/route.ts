@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveSession, isSessionExpired } from "@/lib/divar/auth";
 import { getManagementPage } from "@/lib/divar/posts";
+import { divarErrorResponse } from "@/lib/divar/api-error";
 
 export async function GET(
   _req: NextRequest,
@@ -12,6 +13,10 @@ export async function GET(
   }
 
   const { token } = await params;
-  const data = await getManagementPage(session, token);
-  return NextResponse.json(data);
+  try {
+    const data = await getManagementPage(session, token);
+    return NextResponse.json(data);
+  } catch (e) {
+    return divarErrorResponse(e);
+  }
 }

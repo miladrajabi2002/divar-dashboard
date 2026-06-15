@@ -25,29 +25,41 @@ export default function PostsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [lastIdentifier, setLastIdentifier] = useState("");
   const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState("");
 
   const loadPosts = useCallback(
     async (t: Tab, last = "", append = false) => {
       if (!isLoggedIn) return;
       if (append) setLoadingMore(true);
       else setLoading(true);
+      setError("");
 
-      const url = `/api/posts?tab=${t}${last ? `&last=${encodeURIComponent(last)}` : ""}`;
-      const res = await fetch(url);
-      const data = await res.json();
+      try {
+        const url = `/api/posts?tab=${t}${last ? `&last=${encodeURIComponent(last)}` : ""}`;
+        const res = await fetch(url);
+        const data = await res.json().catch(() => ({}));
 
-      if (data.error === "SESSION_EXPIRED") {
-        openLoginModal();
-      } else {
-        const newPosts: PostRowData[] = data.posts ?? [];
-        setPosts((prev) => (append ? [...prev, ...newPosts] : newPosts));
-        const nextId = data.nextIdentifier ?? "";
-        setLastIdentifier(nextId);
-        setHasMore(newPosts.length > 0 && !!nextId);
+        if (data.error === "SESSION_EXPIRED") {
+          openLoginModal();
+        } else if (data.error) {
+          setError(
+            data.detail
+              ? `خطای دیوار (${data.status ?? ""}): ${data.detail}`
+              : "دریافت آگهی‌ها ناموفق بود"
+          );
+        } else {
+          const newPosts: PostRowData[] = data.posts ?? [];
+          setPosts((prev) => (append ? [...prev, ...newPosts] : newPosts));
+          const nextId = data.nextIdentifier ?? "";
+          setLastIdentifier(nextId);
+          setHasMore(newPosts.length > 0 && !!nextId);
+        }
+      } catch (e) {
+        setError(String(e).replace("Error: ", ""));
+      } finally {
+        if (append) setLoadingMore(false);
+        else setLoading(false);
       }
-
-      if (append) setLoadingMore(false);
-      else setLoading(false);
     },
     [isLoggedIn, openLoginModal]
   );
@@ -101,6 +113,12 @@ export default function PostsPage() {
           ))}
         </TabsList>
       </Tabs>
+
+      {error && (
+        <div className="p-4 bg-destructive/10 text-destructive rounded-xl text-sm break-words" dir="ltr">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
