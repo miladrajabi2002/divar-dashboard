@@ -226,20 +226,36 @@ export default function DashboardPage() {
                   href={`/posts/${post.manageToken}`}
                   className="flex items-center gap-3 py-3 first:pt-0 last:pb-0 -mx-2 px-2 rounded-xl hover:bg-muted/60 transition-colors"
                 >
-                  {post.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={post.imageUrl} alt={post.title} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-xl bg-muted flex-shrink-0" />
-                  )}
+                  {/* Thumbnail — fixed square with object-cover */}
+                  <div className="w-14 h-14 rounded-xl bg-muted flex-shrink-0 overflow-hidden relative">
+                    {post.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        referrerPolicy="no-referrer"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <svg className="w-6 h-6 text-muted-foreground/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{post.title}</p>
                     <p className="text-muted-foreground text-xs truncate mt-0.5">
-                      {post.priceText} {post.location && `— ${post.location}`}
+                      {post.priceText}{post.location ? ` — ${post.location}` : ""}
                     </p>
                   </div>
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ${
-                    post.labelColor === "SUCCESS_PRIMARY" ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"
+                    post.labelColor === "SUCCESS_PRIMARY"
+                      ? "bg-emerald-500/10 text-emerald-600"
+                      : "bg-muted text-muted-foreground"
                   }`}>
                     {post.label}
                   </span>

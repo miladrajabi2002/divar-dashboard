@@ -16,14 +16,15 @@ export function PostCard({ post }: { post: PostRowData }) {
   return (
     <Card className="overflow-hidden border-border/50 card-elevated hover:-translate-y-1 hover:card-elevated-lg transition-all duration-200 group p-0">
       <Link href={`/posts/${post.manageToken}`} className="block">
-        {/* Thumbnail */}
         <div className="aspect-video bg-muted relative overflow-hidden">
           {post.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={post.imageUrl}
               alt={post.title}
+              referrerPolicy="no-referrer"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -33,8 +34,6 @@ export function PostCard({ post }: { post: PostRowData }) {
               </svg>
             </div>
           )}
-
-          {/* Image count badge */}
           {post.imageCount > 1 && (
             <div className="absolute bottom-2 left-2 bg-black/55 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -43,14 +42,10 @@ export function PostCard({ post }: { post: PostRowData }) {
               {post.imageCount}
             </div>
           )}
-
-          {/* Status badge */}
           <div className={`absolute top-2 right-2 text-xs px-2.5 py-1 rounded-full font-medium ${labelStyle}`}>
             {post.label}
           </div>
         </div>
-
-        {/* Info */}
         <CardContent className="p-3.5">
           <h3 className="font-semibold text-sm leading-snug truncate">{post.title}</h3>
           <p className="text-primary font-bold text-sm mt-1.5">{post.priceText}</p>

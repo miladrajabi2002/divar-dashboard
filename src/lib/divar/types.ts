@@ -27,6 +27,19 @@ export interface ManagementPageData {
   actions: string[];
 }
 
+// Single data point in a daily chart series
+export interface ChartPoint {
+  label: string; // Persian date label from Divar e.g. ۰۳/۲۳
+  value: number;
+}
+
+// Per-metric stats with today / total / daily series
+export interface MetricData {
+  today: number;
+  total: number;
+  series: ChartPoint[];
+}
+
 export interface PostStatsData {
   impressions: number;
   views: number;
@@ -36,6 +49,13 @@ export interface PostStatsData {
   position: number | null;
   category: string | null;
   city: string | null;
+  // Daily series per metric — present when fetched from the full-stats endpoint
+  series?: {
+    impression: MetricData;
+    click: MetricData;
+    contact: MetricData;
+    chat: MetricData;
+  };
 }
 
 export interface DivarWidget {
@@ -71,4 +91,7 @@ export interface StatsResponse {
     widget_list: DivarWidget[];
   };
   pages?: Record<string, { widget_list: DivarWidget[] }>;
+  tab_bar?: {
+    tabs: Array<{ identifier: string; title: string }>;
+  };
 }
