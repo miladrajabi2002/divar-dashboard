@@ -49,6 +49,7 @@
 }
 
 :root {
+<<<<<<< HEAD
   /* Warm neutral background — off-white with a slight warm tint */
   --background: oklch(0.975 0.003 40);
   --foreground: oklch(0.18 0.014 40);
@@ -78,10 +79,32 @@
   --ring: oklch(0.565 0.23 27);
 
   --chart-1: oklch(0.565 0.23 27);
+=======
+  --background: oklch(0.975 0.003 40);
+  --foreground: oklch(0.2 0.012 40);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.012 40);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.012 40);
+  --primary: oklch(0.585 0.225 27);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.004 40);
+  --secondary-foreground: oklch(0.28 0.012 40);
+  --muted: oklch(0.965 0.004 40);
+  --muted-foreground: oklch(0.55 0.012 40);
+  --accent: oklch(0.955 0.035 27);
+  --accent-foreground: oklch(0.45 0.18 27);
+  --destructive: oklch(0.585 0.225 27);
+  --border: oklch(0.925 0.005 40);
+  --input: oklch(0.925 0.005 40);
+  --ring: oklch(0.585 0.225 27);
+  --chart-1: oklch(0.585 0.225 27);
+>>>>>>> 1a1940bd2b4bfa9ca3b8c5767274c72843c7d0a8
   --chart-2: oklch(0.72 0.16 60);
   --chart-3: oklch(0.62 0.13 230);
   --chart-4: oklch(0.6 0.15 160);
   --chart-5: oklch(0.58 0.16 300);
+<<<<<<< HEAD
 
   --radius: 0.875rem;
 
@@ -100,6 +123,17 @@
   --motion-decelerate: 300ms cubic-bezier(0, 0, 0, 1);
   --motion-accelerate: 200ms cubic-bezier(0.3, 0, 1, 1);
   --motion-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+=======
+  --radius: 0.85rem;
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.3 0.012 40);
+  --sidebar-primary: oklch(0.585 0.225 27);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.965 0.004 40);
+  --sidebar-accent-foreground: oklch(0.2 0.012 40);
+  --sidebar-border: oklch(0.93 0.005 40);
+  --sidebar-ring: oklch(0.585 0.225 27);
+>>>>>>> 1a1940bd2b4bfa9ca3b8c5767274c72843c7d0a8
 }
 
 .dark {
@@ -145,9 +179,13 @@
     @apply bg-background text-foreground;
     font-family: "Sahel", "Vazirmatn", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+<<<<<<< HEAD
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.01em;
     line-height: 1.6;
+=======
+    letter-spacing: -0.01em;
+>>>>>>> 1a1940bd2b4bfa9ca3b8c5767274c72843c7d0a8
   }
 
   html {
@@ -202,6 +240,7 @@
 }
 
 @layer components {
+<<<<<<< HEAD
   /* Material elevation scale */
   .card-elevated {
     box-shadow:
@@ -253,6 +292,18 @@
     transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
     min-height: 100px;
     line-height: 1.7;
+=======
+  /* Material-style elevation used across the dashboard */
+  .card-elevated {
+    box-shadow:
+      0 1px 2px oklch(0.2 0.02 40 / 0.05),
+      0 6px 20px oklch(0.2 0.02 40 / 0.06);
+  }
+  .card-elevated-lg {
+    box-shadow:
+      0 2px 4px oklch(0.2 0.02 40 / 0.05),
+      0 12px 32px oklch(0.2 0.02 40 / 0.08);
+>>>>>>> 1a1940bd2b4bfa9ca3b8c5767274c72843c7d0a8
   }
 }
 

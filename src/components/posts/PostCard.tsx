@@ -14,9 +14,14 @@ export function PostCard({ post }: { post: PostRowData }) {
   const labelStyle = LABEL_STYLES[post.labelColor] ?? "bg-muted text-muted-foreground";
 
   return (
+<<<<<<< HEAD
     <Card className="overflow-hidden border-border/50 card-elevated hover:-translate-y-1 hover:card-elevated-lg transition-all duration-200 group p-0">
       <Link href={`/posts/${post.manageToken}`} className="block">
         {/* Thumbnail */}
+=======
+    <Card className="overflow-hidden card-elevated border-border/50 hover:card-elevated-lg hover:-translate-y-0.5 transition-all duration-200 group p-0">
+      <Link href={`/posts/${post.manageToken}`}>
+>>>>>>> 1a1940bd2b4bfa9ca3b8c5767274c72843c7d0a8
         <div className="aspect-video bg-muted relative overflow-hidden">
           {post.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
