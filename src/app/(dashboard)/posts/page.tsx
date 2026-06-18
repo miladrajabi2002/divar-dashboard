@@ -88,10 +88,15 @@ export default function PostsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">آگهی‌های من</h1>
-          {!loading && (
-            <p className="text-muted-foreground text-sm mt-1">{posts.length} آگهی</p>
-          )}
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight">آگهی‌های من</h1>
+            {!loading && posts.length > 0 && (
+              <span className="rounded-full bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 tabular-nums">
+                {posts.length}
+              </span>
+            )}
+          </div>
+          <p className="text-muted-foreground text-sm mt-1">مدیریت و بهبود آگهی‌های دیوار</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => loadPosts(tab)} className="gap-1.5">
           <RefreshCw className="w-4 h-4" strokeWidth={2} />

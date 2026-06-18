@@ -15,7 +15,7 @@ import { PostSummaryRow } from "@/components/dashboard/PostSummaryRow";
 import { AiReviewPanel } from "@/components/ai/AiReviewPanel";
 import type { PostRowData } from "@/lib/divar/types";
 import type { OverviewStats } from "@/lib/divar/aggregate-stats";
-import { FileText, CheckCircle2, Eye, Phone, Lock, RefreshCw, Loader2 } from "lucide-react";
+import { FileText, CheckCircle2, Eye, Phone, Lock, RefreshCw, Loader2, TrendingUp, Activity } from "lucide-react";
 
 const containerVariants = {
   hidden: {},
@@ -112,17 +112,18 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">داشبورد</h1>
+      {/* Hero header */}
+      <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-l from-primary/[0.07] via-primary/[0.03] to-transparent p-5 flex items-center justify-between gap-3">
+        <div className="pointer-events-none absolute -top-10 -left-10 h-32 w-32 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative">
+          <h1 className="text-2xl font-extrabold tracking-tight">داشبورد</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {phone ? (
               <span className="ltr inline-block" dir="ltr">{phone}</span>
             ) : "خلاصهٔ وضعیت آگهی‌های شما"}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={refresh} disabled={syncing} className="gap-2">
+        <Button variant="outline" size="sm" onClick={refresh} disabled={syncing} className="relative gap-2 bg-card/80 backdrop-blur">
           {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" strokeWidth={1.8} />}
           {syncing ? "در حال بروزرسانی..." : "بروزرسانی"}
         </Button>
@@ -156,7 +157,10 @@ export default function DashboardPage() {
       {/* Aggregate growth chart */}
       <Card className="card-elevated border-border/50">
         <CardHeader className="flex-row items-center justify-between pb-2">
-          <CardTitle className="text-base">روند رشد آگهی‌ها</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-primary" strokeWidth={2} />
+            روند رشد آگهی‌ها
+          </CardTitle>
           <div className="flex items-center gap-1 rounded-xl bg-muted p-1 text-xs">
             <button
               onClick={() => setChartMode("daily")}
@@ -192,7 +196,10 @@ export default function DashboardPage() {
       {/* Active posts performance list */}
       <Card className="card-elevated border-border/50">
         <CardHeader className="flex-row items-center justify-between pb-3">
-          <CardTitle className="text-base">عملکرد آگهی‌های فعال</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" strokeWidth={2} />
+            عملکرد آگهی‌های فعال
+          </CardTitle>
           <Link href="/posts" className="text-primary text-sm font-medium hover:underline">مشاهدهٔ همه</Link>
         </CardHeader>
         <CardContent>
