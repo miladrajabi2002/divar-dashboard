@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { DirectionProvider } from "@base-ui/react/direction-provider";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -24,7 +25,9 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" className={`h-full ${vazirmatn.variable}`}>
       <body className="h-full antialiased font-sans">
-        <TooltipProvider>{children}</TooltipProvider>
+        <DirectionProvider direction="rtl">
+          <TooltipProvider>{children}</TooltipProvider>
+        </DirectionProvider>
       </body>
     </html>
   );

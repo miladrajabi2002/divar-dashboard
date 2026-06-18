@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AiReviewPanel } from "@/components/ai/AiReviewPanel";
 import { PostStatsView } from "@/components/posts/PostStatsView";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import toast from "react-hot-toast";
 import { ChevronRight, ExternalLink, Sparkles, Trash2, MapPin, Image as ImageIcon, Loader2 } from "lucide-react";
 import type { ManagementPageData, PostRowData, PostStatsData } from "@/lib/divar/types";
 
@@ -25,6 +27,7 @@ export default function PostViewPage({
   const [loading, setLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -53,12 +56,16 @@ export default function PostViewPage({
   }, [token]);
 
   async function handleDelete() {
-    if (!confirm("آیا از حذف این آگهی اطمینان دارید؟")) return;
     setDeleting(true);
     const res = await fetch(`/api/posts/${token}/delete`, { method: "DELETE" });
     setDeleting(false);
-    if (res.ok) router.push("/posts");
-    else alert("حذف ناموفق بود");
+    if (res.ok) {
+      toast.success("آگهی حذف شد");
+      router.push("/posts");
+    } else {
+      toast.error("حذف ناموفق بود");
+      setConfirmOpen(false);
+    }
   }
 
   const postToken = token.slice(0, 8);
@@ -182,11 +189,11 @@ export default function PostViewPage({
               <Button
                 variant="destructive"
                 className="w-full gap-2 col-span-2"
-                onClick={handleDelete}
+                onClick={() => setConfirmOpen(true)}
                 disabled={deleting}
               >
                 <Trash2 className="w-4 h-4" strokeWidth={1.8} />
-                {deleting ? "در حال حذف..." : "حذف آگهی"}
+                حذف آگهی
               </Button>
             </CardContent>
           </Card>
@@ -212,6 +219,18 @@ export default function PostViewPage({
       ) : (
         <p className="text-muted-foreground text-center py-8">خطا در بارگذاری اطلاعات</p>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="حذف آگهی"
+        description="با حذف این آگهی، از دیوار هم حذف می‌شود و قابل بازگشت نیست. مطمئن هستید؟"
+        confirmLabel="حذف کن"
+        cancelLabel="انصراف"
+        destructive
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

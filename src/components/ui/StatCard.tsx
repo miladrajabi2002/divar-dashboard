@@ -29,6 +29,15 @@ const TINT_CLASSES: Record<NonNullable<StatCardProps["color"]>, string> = {
   default: "bg-muted",
 };
 
+// Soft top-corner glow tinted by the card color.
+const GLOW_CLASSES: Record<NonNullable<StatCardProps["color"]>, string> = {
+  primary: "from-primary/[0.07]",
+  success: "from-success/[0.07]",
+  warning: "from-warning/[0.07]",
+  destructive: "from-destructive/[0.07]",
+  default: "from-foreground/[0.04]",
+};
+
 export const statCardVariants = {
   hidden: { opacity: 0, scale: 0.95, y: 12 },
   visible: { opacity: 1, scale: 1, y: 0 },
@@ -47,20 +56,23 @@ export function StatCard({
       variants={statCardVariants}
       transition={{ duration: 0.35, ease: "easeOut" }}
       whileHover={{ y: -3 }}
-      className="card-elevated rounded-2xl border border-border/50 bg-card p-5"
+      className="card-elevated group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5"
     >
-      <div className="flex items-center justify-between">
+      <div
+        className={`pointer-events-none absolute -top-8 -left-8 h-24 w-24 rounded-full bg-gradient-to-br ${GLOW_CLASSES[color]} to-transparent blur-2xl`}
+      />
+      <div className="relative flex items-center justify-between">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <div
-          className={`flex h-9 w-9 items-center justify-center rounded-xl ${TINT_CLASSES[color]} ${COLOR_CLASSES[color]}`}
+          className={`flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-110 ${TINT_CLASSES[color]} ${COLOR_CLASSES[color]}`}
         >
           <Icon className="w-[18px] h-[18px]" strokeWidth={1.8} />
         </div>
       </div>
-      <p className={`mt-3 text-3xl font-extrabold tabular-nums tracking-tight ${COLOR_CLASSES[color]}`}>
+      <p className={`relative mt-3 text-3xl font-extrabold tabular-nums tracking-tight ${COLOR_CLASSES[color]}`}>
         <AnimatedNumber value={value} decimals={decimals} />
       </p>
-      {subtitle ? <p className="mt-1.5 text-xs text-muted-foreground truncate">{subtitle}</p> : null}
+      {subtitle ? <p className="relative mt-1.5 text-xs text-muted-foreground truncate">{subtitle}</p> : null}
     </motion.div>
   );
 }
