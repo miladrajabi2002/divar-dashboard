@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/PostCard";
 import { useSession } from "@/store/session";
+import { FileText, RefreshCw } from "lucide-react";
 import type { PostRowData } from "@/lib/divar/types";
 
 type Tab = "all" | "ongoing" | "waiting" | "retired";
@@ -75,10 +76,7 @@ export default function PostsPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
         <div className="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center">
-          <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <FileText className="w-8 h-8 text-primary" strokeWidth={1.8} />
         </div>
         <p className="text-muted-foreground">برای مشاهده آگهی‌ها ابتدا وارد شوید</p>
         <Button onClick={openLoginModal}>ورود با کد یک‌بارمصرف</Button>
@@ -95,11 +93,8 @@ export default function PostsPage() {
             <p className="text-muted-foreground text-sm mt-1">{posts.length} آگهی</p>
           )}
         </div>
-        <Button variant="outline" size="sm" onClick={() => loadPosts(tab)}>
-          <svg className="w-4 h-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
+        <Button variant="outline" size="sm" onClick={() => loadPosts(tab)} className="gap-1.5">
+          <RefreshCw className="w-4 h-4" strokeWidth={2} />
           بروزرسانی
         </Button>
       </div>
@@ -132,10 +127,7 @@ export default function PostsPage() {
         </div>
       ) : posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-center gap-3">
-          <svg className="w-12 h-12 text-muted-foreground/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <FileText className="w-12 h-12 text-muted-foreground/30" strokeWidth={1} />
           <p className="text-muted-foreground">آگهی‌ای در این بخش وجود ندارد</p>
         </div>
       ) : (

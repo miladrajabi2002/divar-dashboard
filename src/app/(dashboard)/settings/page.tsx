@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "@/store/session";
+import { User, Loader2, Wifi, CheckCircle2, XCircle, Check } from "lucide-react";
 
 const TEXT_MODELS = [
   "anthropic/claude-sonnet-4-6",
@@ -122,7 +123,7 @@ export default function SettingsPage() {
                     variant={expiresAt.getTime() < now + 30 * 60 * 1000 ? "destructive" : "secondary"}
                     className="font-mono"
                   >
-                    {expiresAt.toLocaleTimeString("fa-IR")}
+                    {expiresAt.toLocaleTimeString("en-US")}
                   </Badge>
                 </div>
               )}
@@ -138,9 +139,7 @@ export default function SettingsPage() {
           ) : (
             <div className="text-center py-6 space-y-3">
               <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                <User className="w-6 h-6 text-primary" strokeWidth={1.8} />
               </div>
               <p className="text-muted-foreground text-sm">وارد نشده‌اید</p>
               <Button onClick={openLoginModal} size="sm">ورود با OTP</Button>
@@ -179,14 +178,9 @@ export default function SettingsPage() {
                 className="shrink-0 gap-1.5"
               >
                 {testing ? (
-                  <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-                  </svg>
+                  <Wifi className="w-3.5 h-3.5" strokeWidth={2} />
                 )}
                 تست
               </Button>
@@ -196,9 +190,7 @@ export default function SettingsPage() {
               <div className={`flex items-start gap-2.5 p-3 rounded-xl text-sm ${testResult.ok ? "bg-emerald-500/10 text-emerald-700" : "bg-destructive/10 text-destructive"}`}>
                 {testResult.ok ? (
                   <>
-                    <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
                     <div className="space-y-0.5">
                       <p className="font-medium">اتصال برقرار است</p>
                       {testResult.label && <p className="text-xs opacity-80">{testResult.label}</p>}
@@ -213,9 +205,7 @@ export default function SettingsPage() {
                   </>
                 ) : (
                   <>
-                    <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <XCircle className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
                     <p>{testResult.message}</p>
                   </>
                 )}
@@ -246,7 +236,7 @@ export default function SettingsPage() {
           </div>
 
           <Button onClick={handleSave} disabled={saving || loading} className="w-full">
-            {saving ? "در حال ذخیره..." : saved ? "✓ ذخیره شد" : "ذخیره تنظیمات"}
+            {saving ? "در حال ذخیره..." : saved ? <><Check className="w-4 h-4 inline ml-1" strokeWidth={2.5} />ذخیره شد</> : "ذخیره تنظیمات"}
           </Button>
         </CardContent>
       </Card>

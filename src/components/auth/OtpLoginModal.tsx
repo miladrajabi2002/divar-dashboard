@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/store/session";
+import { X, Lock } from "lucide-react";
 
 export function OtpLoginModal() {
   const { showLoginModal, closeLoginModal, setLoggedIn, hydrate, isLoggedIn } =
@@ -85,16 +86,11 @@ export function OtpLoginModal() {
               className="absolute top-4 left-4 text-white/80 hover:text-white"
               aria-label="بستن"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-5 h-5" strokeWidth={2} />
             </button>
           )}
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
-            <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+            <Lock className="h-7 w-7 text-white" strokeWidth={2} />
           </div>
           <h2 className="text-lg font-bold text-white">ورود به حساب دیوار</h2>
           <p className="mt-1 text-sm text-white/80">

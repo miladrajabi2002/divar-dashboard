@@ -5,13 +5,13 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { OtpLoginModal } from "@/components/auth/OtpLoginModal";
 import { useSession } from "@/store/session";
+import { useAiStatus } from "@/store/ai-status";
 import { useEffect } from "react";
 
 const PAGE_TITLES: Record<string, string> = {
   "/overview": "داشبورد",
   "/posts": "آگهی‌های من",
   "/ai": "دستیار هوش مصنوعی",
-  "/banner": "بنرساز",
   "/settings": "تنظیمات",
 };
 
@@ -29,12 +29,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { hydrate, hydrated, isLoggedIn, openLoginModal } = useSession();
+  const { connected: aiConnected, check: checkAiStatus } = useAiStatus();
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
 
   useEffect(() => {
     hydrate();
-  }, [hydrate]);
+    checkAiStatus();
+  }, [hydrate, checkAiStatus]);
 
   useEffect(() => {
     if (hydrated && !isLoggedIn) openLoginModal();
@@ -50,9 +52,28 @@ export default function DashboardLayout({
             <div className="h-4 w-px bg-border" />
             <h2 className="text-sm font-semibold text-foreground">{pageTitle}</h2>
             <div className="flex-1" />
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs text-muted-foreground hidden sm:block">دیوار داشبورد</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isLoggedIn ? "bg-success pulse-dot" : "bg-muted-foreground/40"
+                  }`}
+                />
+                <span className="text-xs text-muted-foreground hidden sm:block">
+                  {isLoggedIn ? "دیوار متصل" : "دیوار قطع است"}
+                </span>
+              </div>
+              <div className="h-3 w-px bg-border hidden sm:block" />
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    aiConnected ? "bg-success pulse-dot" : "bg-muted-foreground/40"
+                  }`}
+                />
+                <span className="text-xs text-muted-foreground hidden sm:block">
+                  {aiConnected ? "هوش مصنوعی متصل" : "هوش مصنوعی قطع است"}
+                </span>
+              </div>
             </div>
           </header>
           <div className="flex-1 overflow-auto p-5 sm:p-7 fade-in">{children}</div>

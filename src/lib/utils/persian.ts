@@ -12,8 +12,19 @@ export function numberToFa(n: number): string {
   return n.toString().replace(/[0-9]/g, (d) => FA_DIGITS[parseInt(d)]);
 }
 
+export function toEnglishDigits(s: string): string {
+  return s.replace(/[۰-۹]/g, (d) => String(FA_DIGITS.indexOf(d)));
+}
+
 export function formatNumber(n: number): string {
-  return n.toLocaleString("fa-IR");
+  return n.toLocaleString("en-US");
+}
+
+// Persian (Jalali) date labels from Divar look like "۰۳/۲۳" (month/day, no year).
+// Returns a sortable key (month * 100 + day) — good enough for sorting within a year.
+export function parsePersianDateLabel(label: string): number {
+  const [m, d] = toEnglishDigits(label).split("/").map((x) => parseInt(x, 10) || 0);
+  return m * 100 + d;
 }
 
 export function parseJwtExpiry(token: string): Date {

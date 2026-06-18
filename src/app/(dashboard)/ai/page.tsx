@@ -5,35 +5,50 @@ import { useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Type,
+  FileText,
+  Image as ImageIcon,
+  Sparkles,
+  Loader2,
+  Check,
+  Copy,
+  AlertCircle,
+  Square,
+  RectangleHorizontal,
+  RectangleVertical,
+  Download,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-type AiTab = "title" | "description" | "analysis" | "image_prompt";
+type AiTab = "title" | "description" | "image_prompt";
 
-const TAB_CONFIG: Record<AiTab, { label: string; placeholder: string; hint: string; icon: React.ReactNode }> = {
+const TAB_CONFIG: Record<AiTab, { label: string; placeholder: string; hint: string; icon: LucideIcon }> = {
   title: {
     label: "عنوان",
     placeholder: "مثال: پایه تلویزیون سامسونگ ۵۵ اینچ، نو، با گارانتی",
     hint: "نوع محصول و ویژگی‌های اصلی را بنویسید تا ۵ عنوان پیشنهادی دریافت کنید",
-    icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+    icon: Type,
   },
   description: {
     label: "متن آگهی",
     placeholder: "مثال: ماوس گیمینگ ایسوس، دست دوم، ۳ ماه کارکرده، همراه با باکس اصلی",
     hint: "اطلاعات محصول را شرح دهید تا یک متن آگهی حرفه‌ای دریافت کنید",
-    icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
-  },
-  analysis: {
-    label: "تحلیل آمار",
-    placeholder: "مثال: نمایش: ۳۸۶۱، بازدید: ۸۰، تماس: ۱، چت: ۳، جایگاه: ۱۵۶۶",
-    hint: "آمار آگهی را وارد کنید تا تحلیل و پیشنهادات بهبود دریافت کنید",
-    icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
+    icon: FileText,
   },
   image_prompt: {
-    label: "پرامپت تصویر",
-    placeholder: "مثال: پایه ال‌سی‌دی سامسونگ، رنگ مشکی، متریال فلزی",
-    hint: "توضیح محصول را بنویسید تا یک پرامپت AI برای تولید تصویر حرفه‌ای دریافت کنید",
-    icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+    label: "ساخت بنر",
+    placeholder: "مثال: گوشی سامسونگ گلکسی S24 مشکی، نو، در جعبه، روی پس‌زمینه مینیمال سفید",
+    hint: "محصول را شرح دهید — هوش مصنوعی پرامپت تصویر را می‌سازد و بنر را خودکار تولید می‌کند",
+    icon: ImageIcon,
   },
 };
+
+const BANNER_SIZES = [
+  { key: "square", label: "مربع", sub: "1024×1024", icon: Square },
+  { key: "landscape", label: "افقی", sub: "1792×1024", icon: RectangleHorizontal },
+  { key: "portrait", label: "عمودی", sub: "1024×1792", icon: RectangleVertical },
+] as const;
 
 function AiPageContent() {
   const searchParams = useSearchParams();
@@ -45,14 +60,24 @@ function AiPageContent() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const [size, setSize] = useState<(typeof BANNER_SIZES)[number]["key"]>("square");
+  const [bannerImage, setBannerImage] = useState("");
+  const [bannerLoading, setBannerLoading] = useState(false);
+
   const cfg = TAB_CONFIG[activeTab];
+  const Icon = cfg.icon;
+
+  function resetOutputs() {
+    setOutput("");
+    setError("");
+    setCopied(false);
+    setBannerImage("");
+  }
 
   async function handleGenerate() {
     if (!input.trim()) return;
     setLoading(true);
-    setError("");
-    setOutput("");
-    setCopied(false);
+    resetOutputs();
 
     try {
       const res = await fetch("/api/ai/generate", {
@@ -63,10 +88,25 @@ function AiPageContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setOutput(data.output);
+      setLoading(false);
+
+      // Image-prompt flow auto-pipes straight into banner generation — no manual second step.
+      if (activeTab === "image_prompt") {
+        setBannerLoading(true);
+        const bannerRes = await fetch("/api/ai/banner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: data.output, size, postToken: postToken || undefined }),
+        });
+        const bannerData = await bannerRes.json();
+        if (!bannerRes.ok) throw new Error(bannerData.error);
+        setBannerImage(bannerData.image);
+      }
     } catch (e) {
       setError(String(e).replace("Error: ", ""));
     } finally {
       setLoading(false);
+      setBannerLoading(false);
     }
   }
 
@@ -80,26 +120,27 @@ function AiPageContent() {
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">دستیار هوش مصنوعی</h1>
-        <p className="text-muted-foreground text-sm mt-1">ابزارهای AI برای بهبود آگهی‌های دیوار</p>
+        <p className="text-muted-foreground text-sm mt-1">ابزارهای AI برای بهبود و تبلیغ آگهی‌های دیوار</p>
       </div>
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => { setActiveTab(v as AiTab); setOutput(""); setError(""); setCopied(false); }}
+        onValueChange={(v) => { setActiveTab(v as AiTab); setInput(""); resetOutputs(); }}
       >
-        <TabsList className="grid grid-cols-4 w-full h-auto p-1 gap-1">
-          {(Object.keys(TAB_CONFIG) as AiTab[]).map((t) => (
-            <TabsTrigger
-              key={t}
-              value={t}
-              className="flex flex-col items-center gap-1 py-2.5 text-xs data-[state=active]:shadow-sm"
-            >
-              <span className={activeTab === t ? "text-primary" : "text-muted-foreground"}>
-                {TAB_CONFIG[t].icon}
-              </span>
-              <span>{TAB_CONFIG[t].label}</span>
-            </TabsTrigger>
-          ))}
+        <TabsList className="grid grid-cols-3 w-full h-auto p-1 gap-1">
+          {(Object.keys(TAB_CONFIG) as AiTab[]).map((t) => {
+            const TabIcon = TAB_CONFIG[t].icon;
+            return (
+              <TabsTrigger
+                key={t}
+                value={t}
+                className="flex flex-col items-center gap-1 py-2.5 text-xs data-[state=active]:shadow-sm"
+              >
+                <TabIcon className={`w-4 h-4 ${activeTab === t ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.8} />
+                <span>{TAB_CONFIG[t].label}</span>
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
 
         {(Object.keys(TAB_CONFIG) as AiTab[]).map((t) => (
@@ -107,7 +148,7 @@ function AiPageContent() {
             <Card className="card-elevated border-border/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <span className="text-primary">{TAB_CONFIG[t].icon}</span>
+                  <Icon className="w-4 h-4 text-primary" strokeWidth={1.8} />
                   {TAB_CONFIG[t].label}
                 </CardTitle>
                 <p className="text-muted-foreground text-sm">{TAB_CONFIG[t].hint}</p>
@@ -120,24 +161,54 @@ function AiPageContent() {
                   onChange={(e) => setInput(e.target.value)}
                   rows={4}
                 />
+
+                {t === "image_prompt" && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">اندازهٔ بنر</p>
+                    <div className="grid grid-cols-3 gap-2.5">
+                      {BANNER_SIZES.map((s) => {
+                        const SizeIcon = s.icon;
+                        return (
+                          <button
+                            key={s.key}
+                            type="button"
+                            onClick={() => setSize(s.key)}
+                            className={`group p-3.5 rounded-xl border-2 text-center transition-all duration-150 ${
+                              size === s.key
+                                ? "border-primary bg-primary/8 shadow-sm"
+                                : "border-border hover:border-primary/40 hover:bg-muted/60"
+                            }`}
+                          >
+                            <SizeIcon
+                              className={`w-5 h-5 mx-auto mb-1 ${size === s.key ? "text-primary" : "text-muted-foreground/50"}`}
+                              strokeWidth={1.6}
+                            />
+                            <div className={`text-sm font-semibold ${size === s.key ? "text-primary" : "text-foreground"}`}>
+                              {s.label}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-0.5 ltr" dir="ltr">
+                              {s.sub}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <Button
                   onClick={handleGenerate}
-                  disabled={loading || !input.trim()}
+                  disabled={loading || bannerLoading || !input.trim()}
                   className="w-full h-11 font-semibold gap-2"
                 >
-                  {loading ? (
+                  {loading || bannerLoading ? (
                     <>
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      در حال تولید...
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {bannerLoading ? "در حال ساخت بنر..." : "در حال تولید..."}
                     </>
                   ) : (
                     <>
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
+                      <Sparkles className="w-4 h-4" strokeWidth={2} />
                       تولید با AI
                     </>
                   )}
@@ -147,14 +218,12 @@ function AiPageContent() {
 
             {error && (
               <div className="flex items-start gap-3 p-4 bg-destructive/8 border border-destructive/20 text-destructive rounded-xl text-sm fade-in">
-                <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <p>{error}</p>
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
+                <p className="break-words">{error}</p>
               </div>
             )}
 
-            {output && (
+            {output && t !== "image_prompt" && (
               <Card className="card-elevated border-border/50 fade-in">
                 <CardHeader className="pb-2 flex-row items-center justify-between">
                   <CardTitle className="text-sm font-medium text-muted-foreground">نتیجه</CardTitle>
@@ -162,22 +231,18 @@ function AiPageContent() {
                     onClick={handleCopy}
                     className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg transition-colors ${
                       copied
-                        ? "bg-emerald-500/15 text-emerald-600"
+                        ? "bg-success/15 text-success"
                         : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {copied ? (
                       <>
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
+                        <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
                         کپی شد
                       </>
                     ) : (
                       <>
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
+                        <Copy className="w-3.5 h-3.5" strokeWidth={1.8} />
                         کپی
                       </>
                     )}
@@ -187,6 +252,35 @@ function AiPageContent() {
                   <div className="whitespace-pre-wrap text-sm leading-7 bg-muted/40 p-4 rounded-xl border border-border/40">
                     {output}
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {t === "image_prompt" && bannerImage && (
+              <Card className="card-elevated border-border/50 fade-in">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground font-normal flex items-center justify-between">
+                    <span>بنر تولید شده</span>
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">آماده دانلود</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={bannerImage}
+                    alt="بنر تولید شده"
+                    className="w-full rounded-xl border border-border/60 shadow-sm"
+                  />
+                  <a
+                    href={bannerImage}
+                    download="divar-banner.png"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full h-10 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
+                  >
+                    <Download className="w-4 h-4" strokeWidth={2} />
+                    دانلود بنر
+                  </a>
                 </CardContent>
               </Card>
             )}
@@ -201,10 +295,7 @@ export default function AiPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-40 text-muted-foreground text-sm gap-2">
-        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
+        <Loader2 className="w-4 h-4 animate-spin" />
         در حال بارگذاری...
       </div>
     }>
