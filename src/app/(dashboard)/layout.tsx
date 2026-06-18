@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { Toaster } from "react-hot-toast";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { OtpLoginModal } from "@/components/auth/OtpLoginModal";
@@ -80,6 +81,13 @@ export default function DashboardLayout({
         </main>
       </div>
       <OtpLoginModal />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: { fontFamily: "inherit", direction: "rtl" },
+          error: { duration: 5000 },
+        }}
+      />
     </SidebarProvider>
   );
 }

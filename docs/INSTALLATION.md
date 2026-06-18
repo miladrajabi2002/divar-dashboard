@@ -69,10 +69,12 @@ npm run start        # روی پورت 3000
 
 ## ۵) اجرای دائمی با PM2 (پیشنهادی برای سرور)
 
+پروژه یک فایل آمادهٔ `ecosystem.config.js` دارد (پورت ۳۰۰۰، ری‌استارت خودکار):
+
 ```bash
 sudo npm install -g pm2
 npm run build
-pm2 start "npm run start" --name divar-dashboard
+pm2 start ecosystem.config.js
 pm2 save
 pm2 startup          # دستور پیشنهادی را اجرا کنید تا بعد از ریبوت بالا بیاید
 ```
@@ -83,6 +85,7 @@ pm2 startup          # دستور پیشنهادی را اجرا کنید تا �
 pm2 logs divar-dashboard      # مشاهدهٔ لاگ
 pm2 restart divar-dashboard   # ری‌استارت
 pm2 stop divar-dashboard      # توقف
+pm2 status                    # وضعیت پروسه‌ها
 ```
 
 ## ۶) Reverse Proxy با Nginx (اختیاری)
@@ -120,18 +123,20 @@ sudo certbot --nginx -d your-domain.com
 3. روی **ورود به دیوار** بزنید، شمارهٔ موبایل را وارد کنید، کد OTP پیامک‌شده را وارد کنید.
 4. حالا آگهی‌ها، آمار، دستیار AI و بنرساز در دسترس‌اند.
 
-## به‌روزرسانی
+## به‌روزرسانی (مهم)
+
+بعد از هر `git pull` حتماً `npm install` بزنید؛ وگرنه اگر پکیج جدیدی اضافه شده باشد بیلد با خطای `Module not found` می‌خورد:
 
 ```bash
 git pull
-npm install
-npm run db:migrate
-npm run build
+npm install            # ← این مرحله را رد نکنید
+npm run build          # مهاجرت دیتابیس را هم خودکار اجرا می‌کند
 pm2 restart divar-dashboard
 ```
 
 ## نکات و عیب‌یابی
 
+- **خطای `Module not found: Can't resolve 'framer-motion'` (یا `react-hot-toast`)**: یعنی بعد از `git pull` دستور `npm install` اجرا نشده. کافی است `npm install` بزنید و دوباره `npm run build`.
 - **خطای بیلد `better-sqlite3`**: مطمئن شوید `build-essential` و `python3` نصب‌اند، سپس `npm rebuild better-sqlite3`.
 - **بکاپ دیتابیس**: کافی است از فایل `divar.db` نسخهٔ پشتیبان بگیرید (شامل توکن نشست و تنظیمات است؛ آن را محرمانه نگه دارید).
 - **کلید API امن بماند**: فایل‌های `.env.local` و `*.db` در `.gitignore` هستند و نباید commit شوند.
