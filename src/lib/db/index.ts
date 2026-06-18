@@ -24,5 +24,19 @@ sqlite.exec(`
   )
 `);
 
+// Ensure the hourly-snapshot table exists for databases created before this migration.
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS stats_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    impressions INTEGER DEFAULT 0,
+    views INTEGER DEFAULT 0,
+    contacts INTEGER DEFAULT 0,
+    bookmarks INTEGER DEFAULT 0,
+    chats INTEGER DEFAULT 0,
+    post_count INTEGER DEFAULT 0,
+    created_at INTEGER DEFAULT (unixepoch())
+  )
+`);
+
 export const db = drizzle(sqlite, { schema });
 export { schema };

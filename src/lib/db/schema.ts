@@ -63,6 +63,18 @@ export const postStatsDaily = sqliteTable("post_stats_daily", {
   fetchedAt: integer("fetched_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
 });
 
+// Aggregate totals captured at each sync, so the dashboard can plot an hourly growth trend.
+export const statsSnapshots = sqliteTable("stats_snapshots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  impressions: integer("impressions").default(0),
+  views: integer("views").default(0),
+  contacts: integer("contacts").default(0),
+  bookmarks: integer("bookmarks").default(0),
+  chats: integer("chats").default(0),
+  postCount: integer("post_count").default(0),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
+});
+
 export const aiGenerations = sqliteTable("ai_generations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   postToken: text("post_token"),
@@ -91,3 +103,5 @@ export type AiGeneration = typeof aiGenerations.$inferSelect;
 export type NewAiGeneration = typeof aiGenerations.$inferInsert;
 export type AppSetting = typeof appSettings.$inferSelect;
 export type NewAppSetting = typeof appSettings.$inferInsert;
+export type StatsSnapshot = typeof statsSnapshots.$inferSelect;
+export type NewStatsSnapshot = typeof statsSnapshots.$inferInsert;

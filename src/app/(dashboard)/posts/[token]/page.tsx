@@ -8,10 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AiReviewPanel } from "@/components/ai/AiReviewPanel";
-import { ChevronRight, BarChart3, ExternalLink, Sparkles, Trash2 } from "lucide-react";
-import type { ManagementPageData, PostRowData } from "@/lib/divar/types";
+import { PostStatsView } from "@/components/posts/PostStatsView";
+import { ChevronRight, ExternalLink, Sparkles, Trash2, MapPin, Image as ImageIcon, Loader2 } from "lucide-react";
+import type { ManagementPageData, PostRowData, PostStatsData } from "@/lib/divar/types";
 
-export default function PostManagementPage({
+export default function PostViewPage({
   params,
 }: {
   params: Promise<{ token: string }>;
@@ -20,7 +21,9 @@ export default function PostManagementPage({
   const router = useRouter();
   const [data, setData] = useState<ManagementPageData | null>(null);
   const [postInfo, setPostInfo] = useState<PostRowData | null>(null);
+  const [stats, setStats] = useState<PostStatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -34,6 +37,17 @@ export default function PostManagementPage({
           (p: PostRowData) => p.manageToken === token
         );
         setPostInfo(match ?? null);
+
+        // Once we have the brand token, pull the full stats inline.
+        if (managementData?.brandToken) {
+          fetch(`/api/posts/${token}/stats?brand=${managementData.brandToken}`)
+            .then((r) => r.json())
+            .then((d) => { if (!d.error) setStats(d); })
+            .catch(() => {})
+            .finally(() => setStatsLoading(false));
+        } else {
+          setStatsLoading(false);
+        }
       })
       .finally(() => setLoading(false));
   }, [token]);
@@ -50,12 +64,12 @@ export default function PostManagementPage({
   const postToken = token.slice(0, 8);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="max-w-3xl mx-auto space-y-5">
       <div className="flex items-center gap-3">
         <Link href="/posts" className="text-muted-foreground hover:text-foreground">
           <ChevronRight className="w-5 h-5" strokeWidth={2} />
         </Link>
-        <h1 className="text-xl font-bold">مدیریت آگهی</h1>
+        <h1 className="text-xl font-bold">مشاهده آگهی</h1>
       </div>
 
       {loading ? (
@@ -68,34 +82,44 @@ export default function PostManagementPage({
         </Card>
       ) : data ? (
         <>
-          {/* Status Card */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                وضعیت آگهی
-                <Badge className="bg-success/15 text-success font-medium">
-                  {data.status}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {data.publishedAt && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">انتشار</span>
-                  <span className="font-medium">{data.publishedAt}</span>
+          {/* Post header: image + title + price + status */}
+          <Card className="overflow-hidden">
+            <CardContent className="p-4">
+              <div className="flex gap-4">
+                <div className="w-24 h-24 rounded-xl bg-muted flex-shrink-0 overflow-hidden relative">
+                  {postInfo?.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={postInfo.imageUrl}
+                      alt={postInfo.title}
+                      referrerPolicy="no-referrer"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
+                      <ImageIcon className="w-7 h-7" strokeWidth={1.5} />
+                    </div>
+                  )}
                 </div>
-              )}
-              {data.expiresAt && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">انقضاء</span>
-                  <span className="font-medium">{data.expiresAt}</span>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <h2 className="font-bold text-base leading-snug">{postInfo?.title || "آگهی"}</h2>
+                    {data.status && (
+                      <Badge className="bg-success/15 text-success font-medium shrink-0">{data.status}</Badge>
+                    )}
+                  </div>
+                  {postInfo?.priceText && <p className="text-primary font-bold text-sm">{postInfo.priceText}</p>}
+                  {postInfo?.location && (
+                    <p className="text-muted-foreground text-xs flex items-center gap-1">
+                      <MapPin className="w-3 h-3 shrink-0" strokeWidth={2} />
+                      {postInfo.location}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pt-1">
+                    {data.publishedAt && <span>انتشار: {data.publishedAt}</span>}
+                    {data.expiresAt && <span>انقضاء: {data.expiresAt}</span>}
+                  </div>
                 </div>
-              )}
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">شناسه آگهی</span>
-                <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded ltr" dir="ltr">
-                  {postToken}
-                </span>
               </div>
             </CardContent>
           </Card>
@@ -113,25 +137,37 @@ export default function PostManagementPage({
             triggerLabel="بررسی با هوش مصنوعی"
           />
 
-          {/* Actions */}
+          {/* Inline stats */}
+          {statsLoading ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-56 rounded-xl" />)}
+              </div>
+            </div>
+          ) : stats ? (
+            <div className="fade-in">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3">آمار عملکرد آگهی</h3>
+              <PostStatsView stats={stats} />
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-6 text-center text-sm text-muted-foreground">
+                <Loader2 className="w-5 h-5 mx-auto mb-2 opacity-40" />
+                آماری برای این آگهی موجود نیست — از داشبورد روی «بروزرسانی» بزنید.
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Operations */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">عملیات</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-3">
-              {data.brandToken && (
-                <Link href={`/posts/${token}/stats?brand=${data.brandToken}`}>
-                  <Button variant="outline" className="w-full gap-2">
-                    <BarChart3 className="w-4 h-4" strokeWidth={1.8} />
-                    آمار آگهی
-                  </Button>
-                </Link>
-              )}
-              <a
-                href={`https://divar.ir/v/${postToken}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={`https://divar.ir/v/${postToken}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" className="w-full gap-2">
                   <ExternalLink className="w-4 h-4" strokeWidth={1.8} />
                   مشاهده در دیوار
@@ -145,7 +181,7 @@ export default function PostManagementPage({
               </Link>
               <Button
                 variant="destructive"
-                className="w-full gap-2"
+                className="w-full gap-2 col-span-2"
                 onClick={handleDelete}
                 disabled={deleting}
               >
@@ -155,7 +191,7 @@ export default function PostManagementPage({
             </CardContent>
           </Card>
 
-          {/* Available Actions from Divar */}
+          {/* Available actions from Divar */}
           {data.actions.length > 0 && (
             <Card>
               <CardHeader className="pb-3">

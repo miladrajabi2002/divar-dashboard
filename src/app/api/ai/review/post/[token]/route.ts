@@ -44,7 +44,7 @@ export async function POST(
 
   const statsText = statsRow
     ? `- نمایش: ${formatNumber(statsRow.impressions ?? 0)}\n- بازدید: ${formatNumber(statsRow.views ?? 0)}\n- تماس: ${formatNumber(statsRow.contacts ?? 0)}\n- چت: ${formatNumber(statsRow.chats ?? 0)}\n- نشان‌شده: ${formatNumber(statsRow.bookmarks ?? 0)}\n- جایگاه: ${statsRow.position ? formatNumber(statsRow.position) : "نامشخص"}`
-    : "هنوز آماری برای این آگهی ثبت نشده — برای دیدن آمار، یک‌بار صفحهٔ آمار آگهی را باز کنید.";
+    : "هنوز آماری برای این آگهی ثبت نشده — از داشبورد روی «بروزرسانی» بزنید.";
 
   const userPrompt = `اطلاعات این آگهی دیوار:
 - عنوان: ${finalTitle}

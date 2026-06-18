@@ -33,9 +33,6 @@ type TestResult =
 export default function SettingsPage() {
   const { phone, expiresAt, isLoggedIn, openLoginModal, logout } = useSession();
 
-  const [apiKey, setApiKey] = useState("");
-  const [apiKeyMasked, setApiKeyMasked] = useState("");
-  const [hasApiKey, setHasApiKey] = useState(false);
   const [textModel, setTextModel] = useState("");
   const [imageModel, setImageModel] = useState("");
   const [loading, setLoading] = useState(true);
@@ -49,8 +46,6 @@ export default function SettingsPage() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((d) => {
-        setHasApiKey(d.hasApiKey);
-        setApiKeyMasked(d.apiKeyMasked ?? "");
         setTextModel(d.textModel ?? "");
         setImageModel(d.imageModel ?? "");
       })
@@ -61,19 +56,11 @@ export default function SettingsPage() {
     setSaving(true);
     setTestResult(null);
     try {
-      const res = await fetch("/api/settings", {
+      await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          apiKey: apiKey.trim() || undefined,
-          textModel,
-          imageModel,
-        }),
+        body: JSON.stringify({ textModel, imageModel }),
       });
-      const d = await res.json();
-      setHasApiKey(d.hasApiKey);
-      setApiKeyMasked(d.apiKeyMasked ?? "");
-      setApiKey("");
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } finally {
@@ -157,24 +144,15 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-5">
 
-          {/* API Key */}
+          {/* Connection test — the API key is read from the server's .env, not entered here */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">کلید API</label>
-            <div className="flex gap-2">
-              <Input
-                type="password"
-                placeholder={hasApiKey ? `ذخیره شده: ${apiKeyMasked}` : "sk-or-v1-..."}
-                value={apiKey}
-                onChange={(e) => { setApiKey(e.target.value); setTestResult(null); }}
-                className="font-mono text-sm ltr flex-1"
-                dir="ltr"
-                disabled={loading}
-              />
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">وضعیت اتصال</label>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleTest}
-                disabled={testing || loading || (!hasApiKey && !apiKey.trim())}
+                disabled={testing || loading}
                 className="shrink-0 gap-1.5"
               >
                 {testing ? (
@@ -182,7 +160,7 @@ export default function SettingsPage() {
                 ) : (
                   <Wifi className="w-3.5 h-3.5" strokeWidth={2} />
                 )}
-                تست
+                تست اتصال
               </Button>
             </div>
 
@@ -213,11 +191,12 @@ export default function SettingsPage() {
             )}
 
             <p className="text-muted-foreground text-xs">
-              کلید را از{" "}
+              کلید OpenRouter از فایل <span className="font-mono">.env.local</span> روی سرور خوانده می‌شود
+              (متغیر <span className="font-mono">OPENROUTER_API_KEY</span>). کلید را از{" "}
               <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-mono">
                 openrouter.ai/keys
               </a>{" "}
-              بگیرید. برای حفظ کلید فعلی این فیلد را خالی بگذارید.
+              بگیرید.
             </p>
           </div>
 

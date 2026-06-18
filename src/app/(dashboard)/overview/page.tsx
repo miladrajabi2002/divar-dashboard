@@ -3,17 +3,19 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/store/session";
 import { StatCard } from "@/components/ui/StatCard";
 import { AggregateStatsChart } from "@/components/dashboard/AggregateStatsChart";
+import type { HourlySnapshot } from "@/components/dashboard/AggregateStatsChart";
 import { PostSummaryRow } from "@/components/dashboard/PostSummaryRow";
 import { AiReviewPanel } from "@/components/ai/AiReviewPanel";
 import type { PostRowData } from "@/lib/divar/types";
 import type { OverviewStats } from "@/lib/divar/aggregate-stats";
-import { FileText, CheckCircle2, Eye, Phone, Lock } from "lucide-react";
+import { FileText, CheckCircle2, Eye, Phone, Lock, RefreshCw, Loader2 } from "lucide-react";
 
 const containerVariants = {
   hidden: {},
@@ -24,7 +26,10 @@ export default function DashboardPage() {
   const { isLoggedIn, phone, openLoginModal } = useSession();
   const [posts, setPosts] = useState<PostRowData[]>([]);
   const [overview, setOverview] = useState<OverviewStats | null>(null);
+  const [snapshots, setSnapshots] = useState<HourlySnapshot[]>([]);
   const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [chartMode, setChartMode] = useState<"daily" | "hourly">("daily");
 
   const load = () => {
     if (!isLoggedIn) return;
@@ -40,12 +45,34 @@ export default function DashboardPage() {
         }
         setPosts(postsData.posts ?? []);
         setOverview(overviewData.totals ? overviewData : null);
+        setSnapshots(overviewData.snapshots ?? []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   };
 
   useEffect(load, [isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Manual "refresh now": pull fresh posts + stats from Divar, then reload the view.
+  const refresh = async () => {
+    if (syncing) return;
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/sync", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (data.error === "SESSION_EXPIRED") {
+        openLoginModal();
+        return;
+      }
+      if (!res.ok) throw new Error(data.error ?? "بروزرسانی ناموفق بود");
+      toast.success("آمار بروزرسانی شد");
+      load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "بروزرسانی ناموفق بود");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const active = posts.filter((p) => p.labelColor === "SUCCESS_PRIMARY");
 
@@ -95,8 +122,9 @@ export default function DashboardPage() {
             ) : "خلاصهٔ وضعیت آگهی‌های شما"}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={load} className="gap-2">
-          بروزرسانی
+        <Button variant="outline" size="sm" onClick={refresh} disabled={syncing} className="gap-2">
+          {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" strokeWidth={1.8} />}
+          {syncing ? "در حال بروزرسانی..." : "بروزرسانی"}
         </Button>
       </div>
 
@@ -127,14 +155,36 @@ export default function DashboardPage() {
 
       {/* Aggregate growth chart */}
       <Card className="card-elevated border-border/50">
-        <CardHeader className="pb-2">
+        <CardHeader className="flex-row items-center justify-between pb-2">
           <CardTitle className="text-base">روند رشد آگهی‌ها</CardTitle>
+          <div className="flex items-center gap-1 rounded-xl bg-muted p-1 text-xs">
+            <button
+              onClick={() => setChartMode("daily")}
+              className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                chartMode === "daily" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
+              }`}
+            >
+              روزانه
+            </button>
+            <button
+              onClick={() => setChartMode("hourly")}
+              className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                chartMode === "hourly" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
+              }`}
+            >
+              ساعتی
+            </button>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
             <Skeleton className="h-72 w-full rounded-xl" />
           ) : (
-            <AggregateStatsChart series={overview?.series ?? []} />
+            <AggregateStatsChart
+              series={overview?.series ?? []}
+              snapshots={snapshots}
+              mode={chartMode}
+            />
           )}
         </CardContent>
       </Card>
@@ -153,7 +203,7 @@ export default function DashboardPage() {
               message={
                 active.length === 0
                   ? "هیچ آگهی فعالی ندارید"
-                  : "هنوز آماری برای آگهی‌های فعال ثبت نشده — صفحهٔ آمار هرکدام را یک‌بار باز کنید"
+                  : "آماری برای آگهی‌های فعال هنوز آماده نیست — روی «بروزرسانی» بزنید"
               }
             />
           ) : (

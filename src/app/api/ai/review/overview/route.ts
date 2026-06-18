@@ -14,7 +14,7 @@ export async function POST() {
 
   if (overview.postsWithData === 0) {
     return NextResponse.json(
-      { error: "هنوز آماری ثبت نشده — برای شروع، آمار حداقل یکی از آگهی‌هایتان را یک‌بار مشاهده کنید" },
+      { error: "هنوز آماری ثبت نشده — از داشبورد روی «بروزرسانی» بزنید تا آمار آگهی‌ها گرفته شود" },
       { status: 400 }
     );
   }

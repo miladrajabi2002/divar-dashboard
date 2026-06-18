@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, FileText, Sparkles, Settings, LogIn, Phone, Zap } from "lucide-react";
+import { LayoutGrid, FileText, Sparkles, Settings, LogIn, LogOut, Zap } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +16,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { useSession } from "@/store/session";
 
 const NAV_ITEMS = [
@@ -28,7 +27,7 @@ const NAV_ITEMS = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { phone, expiresAt, openLoginModal } = useSession();
+  const { phone, expiresAt, openLoginModal, logout } = useSession();
 
   const isExpiringSoon = expiresAt
     ? expiresAt.getTime() < Date.now() + 30 * 60 * 1000
@@ -36,14 +35,14 @@ export function AppSidebar() {
 
   return (
     <Sidebar side="right" className="border-l border-sidebar-border bg-sidebar">
-      <SidebarHeader className="px-4 py-5">
+      <SidebarHeader className="px-4 py-5 border-b border-sidebar-border/60">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-sm flex-shrink-0">
-            <Zap className="w-5 h-5 text-white" strokeWidth={2} fill="currentColor" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/75 shadow-md shadow-primary/20 flex-shrink-0">
+            <Zap className="w-[22px] h-[22px] text-white" strokeWidth={2} fill="currentColor" />
           </div>
-          <div>
-            <h1 className="text-sidebar-foreground font-bold text-[15px] leading-tight">داشبورد دیوار</h1>
-            <p className="text-muted-foreground text-[11px]">مدیریت هوشمند آگهی</p>
+          <div className="min-w-0">
+            <h1 className="text-sidebar-foreground font-extrabold text-base leading-tight tracking-tight">داشبورد دیوار</h1>
+            <p className="text-muted-foreground text-[11px] mt-0.5">مدیریت هوشمند آگهی‌ها</p>
           </div>
         </div>
       </SidebarHeader>
@@ -78,44 +77,53 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="p-3 border-t border-sidebar-border/60">
         {phone ? (
-          <div className="flex items-center gap-3 rounded-2xl border border-sidebar-border bg-card p-3 card-elevated">
-            <Avatar className="w-10 h-10 flex-shrink-0">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                {phone.slice(-4)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sidebar-foreground text-xs font-semibold truncate ltr flex items-center gap-1" dir="ltr">
-                <Phone className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-                {phone}
-              </p>
-              {isExpiringSoon ? (
-                <Badge
-                  variant="destructive"
-                  className="text-[10px] px-1.5 py-0 mt-1 cursor-pointer"
-                  onClick={openLoginModal}
-                >
-                  توکن در حال انقضاء
-                </Badge>
-              ) : (
-                <p className="text-success text-[10px] mt-1 flex items-center gap-1.5">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-success pulse-dot" />
-                  متصل به دیوار
+          <div className="rounded-2xl border border-sidebar-border bg-card p-2.5 card-elevated">
+            <div className="flex items-center gap-2.5">
+              <Avatar className="w-9 h-9 flex-shrink-0">
+                <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary text-[11px] font-bold">
+                  {phone.slice(-4)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sidebar-foreground text-xs font-bold truncate ltr text-right" dir="ltr">
+                  {phone}
                 </p>
-              )}
+                {isExpiringSoon ? (
+                  <button
+                    onClick={openLoginModal}
+                    className="text-[10px] mt-0.5 text-destructive font-medium flex items-center gap-1 hover:underline"
+                  >
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-destructive blink-dot" />
+                    توکن رو به انقضا — تجدید
+                  </button>
+                ) : (
+                  <p className="text-success text-[10px] mt-0.5 flex items-center gap-1.5">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-success pulse-dot" />
+                    متصل به دیوار
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={logout}
+                aria-label="خروج"
+                className="flex-shrink-0 rounded-lg p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <LogOut className="w-4 h-4" strokeWidth={1.8} />
+              </button>
             </div>
           </div>
         ) : (
           <button
             onClick={openLoginModal}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-semibold shadow-sm"
+            className="w-full flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gradient-to-br from-primary to-primary/85 text-primary-foreground hover:opacity-90 transition-opacity text-sm font-semibold shadow-md shadow-primary/20"
           >
             <LogIn className="w-4 h-4" strokeWidth={2} />
             ورود به دیوار
           </button>
         )}
+        <p className="text-center text-[10px] text-muted-foreground/50 mt-2.5">نسخهٔ ۱.۰ — همگام‌سازی خودکار هر ساعت</p>
       </SidebarFooter>
     </Sidebar>
   );

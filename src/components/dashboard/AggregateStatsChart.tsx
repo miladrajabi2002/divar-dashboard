@@ -20,14 +20,47 @@ const SERIES = [
   { key: "chat" as const, label: "چت", color: "#a855f7" },
 ];
 
-export function AggregateStatsChart({ series }: { series: OverviewSeriesPoint[] }) {
-  const data = series.map((p) => ({ ...p, name: toEnglishDigits(p.label) }));
+export interface HourlySnapshot {
+  t: number;
+  impressions: number;
+  views: number;
+  contacts: number;
+  chats: number;
+}
+
+interface Props {
+  series: OverviewSeriesPoint[];
+  snapshots?: HourlySnapshot[];
+  mode?: "daily" | "hourly";
+}
+
+export function AggregateStatsChart({ series, snapshots = [], mode = "daily" }: Props) {
+  const data =
+    mode === "hourly"
+      ? snapshots.map((s) => ({
+          name: toEnglishDigits(
+            new Date(s.t).toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+          ),
+          impression: s.impressions,
+          click: s.views,
+          contact: s.contacts,
+          chat: s.chats,
+        }))
+      : series.map((p) => ({ ...p, name: toEnglishDigits(p.label) }));
 
   if (data.length === 0) {
     return (
       <div className="h-72 flex flex-col items-center justify-center gap-1 text-center text-sm text-muted-foreground px-6">
         <p>هنوز داده‌ای برای نمودار جمع نشده</p>
-        <p className="text-xs">برای دیدن روند رشد، آمار حداقل یکی از آگهی‌هایتان را یک‌بار مشاهده کنید</p>
+        <p className="text-xs">
+          {mode === "hourly"
+            ? "روند ساعتی بعد از چند بار بروزرسانی خودکار پر می‌شود"
+            : "برای دیدن روند رشد، آمار آگهی‌ها را یک‌بار بروزرسانی کنید"}
+        </p>
       </div>
     );
   }
